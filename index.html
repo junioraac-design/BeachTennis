@@ -4,34 +4,21 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0b1f33" />
-<title>Beach Tennis - Placar</title>
+<title>Beach Tennis Score</title>
 <style>
 :root {
-  --bg: #0b1f33;
-  --bg-2: #102c47;
-  --card: #15385a;
-  --ink: #f4f1ea;
-  --muted: #9db4c9;
-  --sand: #f2c879;
-  --t1: #1d9bd1;
-  --t1-dark: #0f6f99;
-  --t2: #ef6a4c;
-  --t2-dark: #b8452b;
-  --ok: #3ccf91;
-  --danger: #e5484d;
-  --radius: 18px;
+  --bg: #0b1f33; --bg-2: #123150; --card: #15385a;
+  --ink: #f4f1ea; --muted: #9db4c9; --sand: #f2c879;
+  --t1: #1d9bd1; --t1-dark: #0f6f99; --t2: #ef6a4c; --t2-dark: #b8452b;
+  --green: #2ee27a; --danger: #e5484d; --radius: 18px;
   --safe-b: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; }
 body {
-  margin: 0;
+  margin: 0; overflow: hidden; user-select: none; -webkit-user-select: none;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: radial-gradient(1200px 600px at 50% -10%, var(--bg-2), var(--bg));
-  color: var(--ink);
-  overflow: hidden;
-  user-select: none;
-  -webkit-user-select: none;
+  background: radial-gradient(1200px 600px at 50% -10%, var(--bg-2), var(--bg)); color: var(--ink);
 }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; border: 0; }
@@ -39,673 +26,757 @@ button { cursor: pointer; border: 0; }
 .screen.active { display: flex; }
 .num { font-variant-numeric: tabular-nums; }
 
+/* ---------- Botões ---------- */
+.btn { padding: 14px 22px; border-radius: 14px; font-weight: 800; font-size: 1.02rem; transition: transform .1s, filter .15s; }
+.btn:active { transform: scale(.97); } .btn:hover { filter: brightness(1.08); }
+.btn-primary { background: var(--sand); color: #2a1d00; width: 100%; margin-top: 18px; }
+.btn-secondary { background: rgba(255,255,255,.1); width: 100%; margin-top: 10px; }
+.btn-danger { background: var(--danger); color: #fff; width: 100%; margin-top: 10px; }
+.btn-green { background: var(--green); color: #05281a; width: 100%; margin-top: 10px; }
+
+/* ---------- Avatar (foto) ---------- */
+.photo {
+  position: relative; border-radius: 50%; background: rgba(255,255,255,.14) center/cover no-repeat;
+  border: 4px solid rgba(255,255,255,.25); display: grid; place-items: center;
+  font-weight: 900; color: rgba(255,255,255,.85); flex: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.photo.serving { border-color: var(--green); box-shadow: 0 0 0 4px rgba(46,226,122,.35), 0 0 28px rgba(46,226,122,.6); }
+.photo .ball { position: absolute; top: -10%; right: -10%; font-size: clamp(1.4rem, 4.6vmin, 3rem); line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+
 /* ---------- Setup ---------- */
-#setup { align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-.setup-card {
-  width: 100%; max-width: 520px; margin: auto;
-  background: rgba(21, 56, 90, .75); border: 1px solid rgba(255,255,255,.08);
-  border-radius: 24px; padding: 28px 24px; backdrop-filter: blur(6px);
-  box-shadow: 0 20px 50px rgba(0,0,0,.35);
-}
-.brand { text-align: center; margin-bottom: 20px; }
-.brand .ball { font-size: 2.4rem; }
-.brand h1 { margin: 4px 0 2px; font-size: 1.7rem; letter-spacing: .02em; }
-.brand p { margin: 0; color: var(--muted); font-size: .95rem; }
-.team-block { border-radius: 14px; padding: 12px 14px 6px; margin-bottom: 14px; border-left: 5px solid; background: rgba(0,0,0,.18); }
-.team-block.t1 { border-color: var(--t1); }
-.team-block.t2 { border-color: var(--t2); }
-.team-block h2 { margin: 0 0 8px; font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.team-block input {
-  width: 100%; margin: 0 0 8px; padding: 12px 14px; font-size: 1rem; text-align: center;
-  text-transform: uppercase; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-  border-radius: 10px; outline: none; user-select: text; -webkit-user-select: text;
-}
-.team-block input:focus { border-color: var(--sand); background: rgba(255,255,255,.12); }
-.field-label { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
-.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; background: rgba(0,0,0,.25); padding: 5px; border-radius: 12px; }
-.seg input { position: absolute; opacity: 0; pointer-events: none; }
-.seg label { text-align: center; padding: 10px 6px; border-radius: 8px; font-size: .92rem; cursor: pointer; color: var(--muted); transition: .15s; }
-.seg input:checked + label { background: var(--sand); color: #2a1d00; font-weight: 700; }
-.seg input:focus-visible + label { outline: 2px solid #fff; }
-.btn { padding: 14px 22px; border-radius: 14px; font-weight: 700; font-size: 1.05rem; transition: transform .1s, filter .15s; }
-.btn:active { transform: scale(.97); }
-.btn:hover { filter: brightness(1.08); }
-.btn-primary { background: var(--sand); color: #2a1d00; width: 100%; margin-top: 20px; }
-.btn-secondary { background: rgba(255,255,255,.1); color: var(--ink); width: 100%; margin-top: 10px; }
-.btn-danger { background: var(--danger); color: #fff; }
-.resume { display: none; background: rgba(60,207,145,.12); border: 1px solid rgba(60,207,145,.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; font-size: .92rem; }
-.resume.show { display: block; }
-.resume b { color: var(--ok); }
-.resume .btn { margin-top: 10px; padding: 10px; font-size: .95rem; background: var(--ok); color: #05281a; width: 100%; }
+#setup { align-items: flex-start; justify-content: center; padding: 18px; overflow-y: auto; }
+.setup-card { width: 100%; max-width: 640px; margin: auto; background: rgba(21,56,90,.78); border: 1px solid rgba(255,255,255,.08); border-radius: 24px; padding: 26px 20px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+.brand { text-align: center; margin-bottom: 18px; }
+.brand .ball-big { font-size: 2.4rem; }
+.brand h1 { margin: 4px 0 2px; font-size: 1.6rem; letter-spacing: .06em; text-transform: uppercase; }
+.brand p { margin: 0; color: var(--muted); font-size: .92rem; }
+.resume { display: none; background: rgba(46,226,122,.12); border: 1px solid rgba(46,226,122,.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 16px; font-size: .92rem; }
+.resume.show { display: block; } .resume b { color: var(--green); }
+.team-block { border-radius: 16px; padding: 12px; margin-bottom: 14px; border-left: 5px solid; background: rgba(0,0,0,.18); }
+.team-block.t1 { border-color: var(--t1); } .team-block.t2 { border-color: var(--t2); }
+.team-block h2 { margin: 0 0 10px; font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.athletes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.athlete-card { display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,.05); border-radius: 14px; padding: 12px 8px; }
+.athlete-card .photo { width: 84px; height: 84px; font-size: 2rem; cursor: pointer; border-style: dashed; }
+.athlete-card .photo.has { border-style: solid; }
+.athlete-card .photo:hover { border-color: var(--sand); }
+.athlete-card .hint { font-size: .68rem; color: var(--muted); margin-top: -2px; }
+.athlete-card input[type=text] { width: 100%; padding: 10px; text-align: center; text-transform: uppercase; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; outline: none; user-select: text; -webkit-user-select: text; font-size: .95rem; }
+.athlete-card input[type=text]:focus { border-color: var(--sand); }
+.first-pick { display: flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--muted); cursor: pointer; padding: 6px 8px; border-radius: 8px; }
+.first-pick input { accent-color: var(--green); width: 18px; height: 18px; margin: 0; }
+.first-pick:has(input:checked) { color: var(--green); background: rgba(46,226,122,.12); }
+.field-label { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-align: center; margin: 4px 0 0; }
 
-/* ---------- Game ---------- */
+/* ---------- Jogo ---------- */
 #game { flex-direction: column; }
-.topbar {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 10px 14px; padding-top: max(10px, env(safe-area-inset-top));
-}
-.timer { font-size: 1.5rem; font-weight: 700; letter-spacing: .04em; display: flex; align-items: center; gap: 8px; }
+.topbar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 14px 0; padding-top: max(8px, env(safe-area-inset-top)); position: relative; min-height: 56px; }
+.timer { font-size: clamp(1.8rem, 6vmin, 3.4rem); font-weight: 800; letter-spacing: .06em; }
 .timer.paused { color: var(--muted); }
-.timer.paused::after { content: "PAUSADO"; font-size: .65rem; letter-spacing: .12em; background: rgba(255,255,255,.14); padding: 3px 8px; border-radius: 99px; }
-.chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; flex: 1; min-height: 28px; }
-.chip { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 5px 10px; border-radius: 99px; background: rgba(255,255,255,.1); color: var(--muted); }
-.chip.hot { background: var(--sand); color: #2a1d00; animation: pulse 1.4s ease-in-out infinite; }
-.chip.set-hist { background: rgba(0,0,0,.28); color: var(--ink); text-transform: none; letter-spacing: .02em; }
-@keyframes pulse { 50% { transform: scale(1.06); } }
-.icon-btn { width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1); font-size: 1.1rem; display: grid; place-items: center; }
-.icon-btn:hover { background: rgba(255,255,255,.18); }
+.timer.paused::after { content: " ⏸"; font-size: .6em; }
+.icon-btn { position: absolute; right: 12px; top: max(8px, env(safe-area-inset-top)); width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1); font-size: 1.1rem; }
 
-.panels { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 4px 12px 12px; }
-@media (orientation: portrait) { .panels { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; } }
-.panel {
-  position: relative; border-radius: var(--radius); padding: 14px 16px; text-align: center;
-  display: flex; flex-direction: column; justify-content: space-between; align-items: center;
-  color: #fff; overflow: hidden; touch-action: manipulation;
-  transition: transform .08s, box-shadow .2s;
-  box-shadow: inset 0 0 0 2px rgba(255,255,255,.12), 0 10px 24px rgba(0,0,0,.3);
-}
-.panel:active { transform: scale(.985); }
-.panel.t1 { background: linear-gradient(160deg, var(--t1), var(--t1-dark)); }
-.panel.t2 { background: linear-gradient(160deg, var(--t2), var(--t2-dark)); }
-.panel.flash::after { content: ""; position: absolute; inset: 0; background: #fff; opacity: .28; animation: fade .35s forwards; }
-@keyframes fade { to { opacity: 0; } }
-.panel.serving { box-shadow: inset 0 0 0 4px var(--sand), 0 10px 24px rgba(0,0,0,.3); }
-.names { font-weight: 800; letter-spacing: .04em; text-transform: uppercase; line-height: 1.25; font-size: clamp(.95rem, 2.6vmin, 1.4rem); }
-.names .and { display: block; font-weight: 400; font-style: italic; opacity: .7; font-size: .8em; text-transform: none; }
-.names .srv { color: var(--sand); }
-.srv-tag { height: 22px; font-size: .75rem; font-weight: 800; letter-spacing: .12em; color: var(--sand); }
-.pts { font-size: clamp(4rem, 22vmin, 12rem); font-weight: 900; line-height: 1; text-shadow: 0 4px 0 rgba(0,0,0,.18); }
-.sub { display: flex; gap: 18px; justify-content: center; font-size: .78rem; letter-spacing: .12em; text-transform: uppercase; opacity: .9; }
-.sub b { display: block; font-size: clamp(1.6rem, 6vmin, 2.6rem); letter-spacing: 0; line-height: 1.05; }
+.stage { flex: 1; min-height: 0; display: grid; gap: 12px; padding: 8px 12px 10px; grid-template-columns: 1fr 1.1fr 1fr; grid-template-areas: "t1 center t2"; }
+@media (orientation: portrait) { .stage { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; grid-template-areas: "center center" "t1 t2"; } }
+.team-card { grid-area: var(--area); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; min-height: 0; box-shadow: inset 0 0 0 2px rgba(255,255,255,.1), 0 10px 24px rgba(0,0,0,.3); }
+.team-card.t1 { --area: t1; background: linear-gradient(160deg, var(--t1), var(--t1-dark)); }
+.team-card.t2 { --area: t2; background: linear-gradient(160deg, var(--t2), var(--t2-dark)); }
+.team-title { font-size: .8rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; opacity: .9; }
+.tiles { flex: 1; min-height: 0; display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; }
+.tile { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.tile .photo { width: clamp(58px, 17vmin, 190px); height: clamp(58px, 17vmin, 190px); font-size: clamp(1.4rem, 5vmin, 4rem); }
+.tile .nm { font-weight: 800; text-transform: uppercase; text-align: center; font-size: clamp(.78rem, 2.3vmin, 1.5rem); line-height: 1.15; word-break: break-word; max-width: 100%; }
+.tile .nm.srv { color: var(--sand); }
+@media (orientation: portrait) { .tiles { flex-direction: column; gap: 6px; } .tile .photo { width: clamp(56px, 22vw, 130px); height: clamp(56px, 22vw, 130px); } }
+.point-btn { width: 100%; padding: clamp(14px, 3.4vmin, 34px) 8px; border-radius: 14px; background: rgba(255,255,255,.2); color: #fff; font-weight: 900; letter-spacing: .08em; font-size: clamp(1rem, 3vmin, 2rem); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); touch-action: manipulation; }
+.point-btn:hover { background: rgba(255,255,255,.3); } .point-btn:active { transform: scale(.97); background: rgba(255,255,255,.4); }
 
-.controls {
-  display: flex; gap: 10px; padding: 0 12px calc(12px + var(--safe-b));
-}
-.controls button { flex: 1; padding: 14px 8px; border-radius: 14px; background: rgba(255,255,255,.1); font-weight: 700; font-size: .98rem; }
-.controls button:hover:not(:disabled) { background: rgba(255,255,255,.18); }
-.controls button:disabled { opacity: .35; cursor: default; }
+.center { grid-area: center; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; background: rgba(0,0,0,.22); border-radius: var(--radius); padding: 10px; min-height: 0; }
+.lbl { font-size: clamp(.7rem, 2vmin, 1.2rem); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+.lbl.hot { color: var(--sand); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+.pts { font-size: clamp(3rem, 15vmin, 11rem); font-weight: 900; line-height: 1; white-space: nowrap; }
+.games { font-size: clamp(2rem, 9vmin, 6.5rem); font-weight: 800; line-height: 1.05; white-space: nowrap; }
+.pts .x, .games .x { color: var(--muted); font-weight: 600; font-size: .6em; padding: 0 .2em; }
+.c1 { color: #7fd3f5; } .c2 { color: #ff9c85; }
+.gamenum { font-size: clamp(.75rem, 2vmin, 1.1rem); color: var(--muted); }
+@media (orientation: portrait) { .pts { font-size: clamp(3rem, 17vw, 7rem); } .games { font-size: clamp(2rem, 11vw, 4.5rem); } }
 
-.toast {
-  position: fixed; left: 50%; top: 70px; transform: translate(-50%, -20px); opacity: 0; pointer-events: none;
-  background: var(--sand); color: #2a1d00; font-weight: 800; padding: 12px 20px; border-radius: 99px;
-  box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: .25s; z-index: 20; text-align: center; max-width: 92vw;
-}
-.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.controls { display: flex; gap: 10px; padding: 0 12px calc(12px + var(--safe-b)); }
+.controls button { flex: 1; padding: 13px 8px; border-radius: 14px; background: rgba(255,255,255,.1); font-weight: 800; font-size: clamp(.8rem, 2.2vmin, 1.2rem); }
+.controls button:hover { background: rgba(255,255,255,.18); }
+
+/* ---------- Alerta de troca de lado ---------- */
+.side-alert { position: fixed; inset: 0; z-index: 30; display: none; place-items: center; background: rgba(5,15,28,.82); backdrop-filter: blur(4px); cursor: pointer; }
+.side-alert.show { display: grid; animation: pop .25s; }
+@keyframes pop { from { opacity: 0; transform: scale(.94); } }
+.side-alert .box { text-align: center; padding: 24px; }
+.side-alert .big { font-size: clamp(2.2rem, 9vmin, 6rem); font-weight: 900; color: var(--sand); letter-spacing: .04em; }
+.side-alert .big span { display: inline-block; animation: spin 1.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.side-alert .sub { margin-top: 8px; font-size: clamp(1rem, 3.4vmin, 2rem); color: var(--ink); }
+.side-alert .tap { margin-top: 18px; font-size: .8rem; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
 
 /* ---------- Final ---------- */
-#final { align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-.final-card { width: 100%; max-width: 520px; margin: auto; background: rgba(21,56,90,.8); border-radius: 24px; padding: 28px 22px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
-.trophy { font-size: 3.4rem; animation: bounce 1.6s ease-in-out infinite; }
-@keyframes bounce { 50% { transform: translateY(-8px); } }
-.final-card h1 { margin: 6px 0 2px; font-size: 1rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
-.winner-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: var(--sand); margin: 6px 0 14px; line-height: 1.2; }
-.final-score { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-.set-box { background: rgba(0,0,0,.28); border-radius: 12px; padding: 8px 16px; font-size: 2rem; font-weight: 800; }
-.set-box sup { font-size: .5em; color: var(--muted); }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; }
-.stat { background: rgba(0,0,0,.2); border-radius: 12px; padding: 10px 4px; }
-.stat b { display: block; font-size: 1.25rem; }
-.stat span { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.games-log { max-height: 160px; overflow: auto; text-align: left; font-size: .85rem; color: var(--muted); background: rgba(0,0,0,.2); border-radius: 12px; padding: 10px 14px; margin-bottom: 4px; }
-.games-log div { display: flex; justify-content: space-between; padding: 3px 0; }
-.games-log .w1 { color: #7fd3f5; } .games-log .w2 { color: #ff9c85; }
+#final { align-items: flex-start; justify-content: center; padding: 18px; overflow-y: auto; }
+.final-card { width: 100%; max-width: 640px; margin: auto; background: rgba(21,56,90,.82); border-radius: 24px; padding: 26px 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+.final-card h1 { margin: 0; font-size: .95rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.winners { display: flex; justify-content: center; gap: 14px; margin: 14px 0 8px; }
+.winners .photo { width: clamp(84px, 24vw, 150px); height: clamp(84px, 24vw, 150px); font-size: 2.6rem; border-color: var(--sand); }
+.winner-name { font-size: clamp(1.4rem, 5vw, 2.2rem); font-weight: 900; text-transform: uppercase; color: var(--sand); margin: 6px 0 10px; line-height: 1.15; }
+.final-score { font-size: clamp(2.6rem, 10vw, 4.4rem); font-weight: 900; line-height: 1; }
+.final-time { margin: 10px 0 4px; color: var(--muted); }
+.final-time b { color: var(--ink); font-size: 1.3rem; letter-spacing: .05em; }
+.tb-box { margin: 14px 0; background: rgba(242,200,121,.1); border: 1px solid rgba(242,200,121,.4); border-radius: 14px; padding: 10px; }
+.tb-box .lbl { color: var(--sand); } .tb-box .v { font-size: 1.2rem; font-weight: 800; margin-top: 4px; }
+.summary { margin-top: 14px; text-align: left; }
+.summary h2 { margin: 0 0 8px; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.g-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 10px; padding: 9px 12px; border-radius: 12px; background: rgba(0,0,0,.2); margin-bottom: 6px; border-left: 4px solid; }
+.g-row.w1 { border-color: var(--t1); } .g-row.w2 { border-color: var(--t2); }
+.g-row .g { font-weight: 800; } .g-row .who { font-size: .85rem; color: var(--muted); }
+.g-row .sc { grid-row: 1 / span 2; grid-column: 2; font-weight: 900; font-size: 1.2rem; white-space: nowrap; }
+.g-row .sc em { font-style: normal; color: var(--sand); }
 
-/* ---------- Dialog ---------- */
-dialog { border: 0; border-radius: 20px; padding: 22px; background: var(--card); color: var(--ink); max-width: 90vw; width: 380px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
-dialog::backdrop { background: rgba(0,0,0,.6); backdrop-filter: blur(3px); }
-dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 16px; color: var(--muted); }
-dialog .row { display: flex; gap: 10px; flex-direction: column; }
-dialog .btn { margin: 0; width: 100%; }
+/* ---------- Dialogs / Toast ---------- */
+dialog { border: 0; border-radius: 20px; padding: 22px; background: var(--card); color: var(--ink); max-width: 92vw; width: 400px; box-shadow: 0 30px 80px rgba(0,0,0,.6); max-height: 92dvh; overflow-y: auto; }
+dialog::backdrop { background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
+dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted); }
+.pick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pick-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: rgba(255,255,255,.1); border-radius: 16px; padding: 14px 8px; font-weight: 800; text-transform: uppercase; }
+.pick-btn:hover { background: rgba(46,226,122,.25); }
+.pick-btn .photo { width: 84px; height: 84px; font-size: 2rem; }
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-bottom: 8px; }
+.edit-grid label { font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+.edit-grid input { width: 100%; padding: 12px; font-size: 1.3rem; font-weight: 800; text-align: center; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; outline: none; user-select: text; -webkit-user-select: text; }
+.edit-grid input:focus { border-color: var(--sand); }
+.edit-grid .h { grid-column: 1 / -1; font-weight: 800; font-size: .85rem; color: var(--sand); }
+.toast { position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--sand); color: #2a1d00; font-weight: 800; padding: 12px 20px; border-radius: 99px; box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: .25s; z-index: 40; text-align: center; max-width: 92vw; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 
-<!-- ============ CONFIGURAÇÃO ============ -->
+<!-- ============ CADASTRO INICIAL ============ -->
 <main id="setup" class="screen active">
   <div class="setup-card">
     <div class="brand">
-      <div class="ball">🎾</div>
-      <h1>Beach Tennis</h1>
-      <p>Placar de duplas</p>
+      <div class="ball-big">🎾</div>
+      <h1>Beach Tennis Score</h1>
+      <p>Cadastre os atletas e escolha quem saca primeiro</p>
     </div>
 
     <div class="resume" id="resume-box">
       <div>Partida em andamento: <b id="resume-desc"></b></div>
-      <button class="btn" id="btn-resume" type="button">Continuar partida</button>
+      <button class="btn btn-green" id="btn-resume" type="button">Continuar partida</button>
     </div>
 
     <div class="team-block t1">
       <h2>Dupla 1</h2>
-      <input id="n-0-0" maxlength="20" placeholder="Jogador 1" autocomplete="off" />
-      <input id="n-0-1" maxlength="20" placeholder="Jogador 2" autocomplete="off" />
+      <div class="athletes" id="ath-0"></div>
     </div>
     <div class="team-block t2">
       <h2>Dupla 2</h2>
-      <input id="n-1-0" maxlength="20" placeholder="Jogador 3" autocomplete="off" />
-      <input id="n-1-1" maxlength="20" placeholder="Jogador 4" autocomplete="off" />
+      <div class="athletes" id="ath-1"></div>
     </div>
+    <div class="field-label">🎾 Marque o atleta que fará o primeiro saque</div>
 
-    <div class="field-label">Quem começa sacando</div>
-    <div class="seg">
-      <input type="radio" name="first" id="f0" value="0" checked><label for="f0">Dupla 1</label>
-      <input type="radio" name="first" id="f1" value="1"><label for="f1">Dupla 2</label>
-    </div>
-
-    <div class="field-label">Formato</div>
-    <div class="seg">
-      <input type="radio" name="sets" id="s1" value="1" checked><label for="s1">Set único</label>
-      <input type="radio" name="sets" id="s3" value="3"><label for="s3">Melhor de 3</label>
-    </div>
-
-    <div class="field-label">Regra do 40-40</div>
-    <div class="seg">
-      <input type="radio" name="rule" id="r0" value="golden" checked><label for="r0">Ponto de ouro</label>
-      <input type="radio" name="rule" id="r1" value="adv"><label for="r1">Vantagem</label>
-    </div>
-
-    <button class="btn btn-primary" id="btn-start" type="button">Começar jogo</button>
+    <button class="btn btn-primary" id="btn-start" type="button">Começar partida</button>
   </div>
 </main>
 
-<!-- ============ JOGO ============ -->
+<!-- ============ PARTIDA ============ -->
 <main id="game" class="screen">
   <div class="topbar">
-    <div class="timer num" id="timer">00:00</div>
-    <div class="chips" id="chips"></div>
+    <div class="timer num" id="timer">00:00:00</div>
     <button class="icon-btn" id="btn-fs" type="button" aria-label="Tela cheia" title="Tela cheia">⛶</button>
   </div>
 
-  <div class="panels">
-    <button class="panel t1" id="panel-0" type="button" aria-label="Ponto para a Dupla 1">
-      <div>
-        <div class="srv-tag" id="srv-0"></div>
-        <div class="names" id="names-0"></div>
-      </div>
-      <div class="pts num" id="pts-0">0</div>
-      <div class="sub">
-        <div>Games<b class="num" id="games-0">0</b></div>
-        <div id="sets-wrap-0" hidden>Sets<b class="num" id="sets-0">0</b></div>
-      </div>
-    </button>
-    <button class="panel t2" id="panel-1" type="button" aria-label="Ponto para a Dupla 2">
-      <div>
-        <div class="srv-tag" id="srv-1"></div>
-        <div class="names" id="names-1"></div>
-      </div>
-      <div class="pts num" id="pts-1">0</div>
-      <div class="sub">
-        <div>Games<b class="num" id="games-1">0</b></div>
-        <div id="sets-wrap-1" hidden>Sets<b class="num" id="sets-1">0</b></div>
-      </div>
-    </button>
+  <div class="stage">
+    <section class="team-card t1" id="team-0">
+      <div class="team-title">Dupla 1</div>
+      <div class="tiles" id="tiles-0"></div>
+      <button class="point-btn" id="pt-btn-0" type="button" aria-label="Ponto para a Dupla 1">+ PONTO</button>
+    </section>
+
+    <section class="center" aria-live="polite">
+      <div class="lbl" id="lbl-pts">Pontos</div>
+      <div class="pts num" id="pts"></div>
+      <div class="lbl">Games</div>
+      <div class="games num" id="games"></div>
+      <div class="gamenum" id="gamenum"></div>
+    </section>
+
+    <section class="team-card t2" id="team-1">
+      <div class="team-title">Dupla 2</div>
+      <div class="tiles" id="tiles-1"></div>
+      <button class="point-btn" id="pt-btn-1" type="button" aria-label="Ponto para a Dupla 2">+ PONTO</button>
+    </section>
   </div>
 
   <div class="controls">
-    <button id="btn-undo" type="button">↶ Desfazer</button>
-    <button id="btn-pause" type="button">⏸ Pausar</button>
-    <button id="btn-menu" type="button">⋯ Mais</button>
+    <button id="btn-fix" type="button">⚙ CORRIGIR</button>
+    <button id="btn-pause" type="button">⏸ PAUSAR</button>
+    <button id="btn-reset" type="button">🔄 REINICIAR PARTIDA</button>
   </div>
 </main>
 
-<!-- ============ FIM ============ -->
+<!-- ============ TELA FINAL ============ -->
 <main id="final" class="screen">
   <div class="final-card">
-    <div class="trophy" id="f-trophy">🏆</div>
-    <h1 id="f-title">Fim da partida</h1>
+    <h1>🏆 Vencedores</h1>
+    <div class="winners" id="f-photos"></div>
     <div class="winner-name" id="f-winner"></div>
-    <div class="final-score" id="f-score"></div>
-    <div class="stats">
-      <div class="stat"><b class="num" id="f-time">00:00</b><span>Duração</span></div>
-      <div class="stat"><b class="num" id="f-games">0</b><span>Games</span></div>
-      <div class="stat"><b class="num" id="f-points">0-0</b><span>Pontos</span></div>
+    <div class="lbl">Placar final</div>
+    <div class="final-score num" id="f-score"></div>
+    <div class="final-time">Tempo da partida<br><b class="num" id="f-time">00:00:00</b></div>
+    <div class="tb-box" id="f-tb" hidden>
+      <div class="lbl">Tie-Break</div>
+      <div class="v" id="f-tb-text"></div>
     </div>
-    <div class="games-log" id="f-log"></div>
-    <button class="btn btn-primary" id="btn-rematch" type="button">Revanche (mesmas duplas)</button>
-    <button class="btn btn-secondary" id="btn-share" type="button">Compartilhar resultado</button>
-    <button class="btn btn-secondary" id="btn-new" type="button">Nova partida</button>
+    <div class="summary">
+      <h2>Resumo da partida</h2>
+      <div id="f-log"></div>
+    </div>
+    <button class="btn btn-secondary" id="btn-back" type="button">↶ Voltar e corrigir último ponto</button>
+    <button class="btn btn-primary" id="btn-new" type="button">🔄 Nova partida</button>
   </div>
 </main>
+
+<div class="side-alert" id="side-alert" role="alert">
+  <div class="box">
+    <div class="big"><span>🔄</span> TROCA DE LADO</div>
+    <div class="sub" id="side-sub"></div>
+    <div class="tap">toque para continuar</div>
+  </div>
+</div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<dialog id="dlg-menu">
-  <h3>Opções</h3>
-  <p>O que deseja fazer?</p>
-  <div class="row">
-    <button class="btn btn-secondary" id="m-swap" type="button">⇄ Trocar quem saca</button>
-    <button class="btn btn-secondary" id="m-end" type="button">🏁 Encerrar partida</button>
-    <button class="btn btn-danger" id="m-reset" type="button">Descartar partida</button>
-    <button class="btn btn-secondary" id="m-close" type="button">Voltar</button>
-  </div>
+<!-- Escolha do sacador do 2º game -->
+<dialog id="dlg-pick">
+  <h3>🎾 Quem saca o Game 2?</h3>
+  <p id="pick-note"></p>
+  <div class="pick-row" id="pick-row"></div>
 </dialog>
+
+<!-- Corrigir -->
+<dialog id="dlg-fix">
+  <h3>⚙ Corrigir</h3>
+  <p>Escolha uma opção.</p>
+  <button class="btn btn-secondary" id="fx-point" type="button">↶ Desfazer último ponto</button>
+  <button class="btn btn-secondary" id="fx-game" type="button">⏮ Desfazer último game</button>
+  <button class="btn btn-secondary" id="fx-edit" type="button">✏ Editar placar manualmente</button>
+  <button class="btn btn-secondary" id="fx-close" type="button">Voltar</button>
+</dialog>
+
+<!-- Editar placar -->
+<dialog id="dlg-edit">
+  <h3>✏ Editar placar</h3>
+  <p id="edit-note"></p>
+  <div class="edit-grid">
+    <div class="h">GAMES</div>
+    <div><label for="e-g0">Dupla 1</label><input id="e-g0" type="number" inputmode="numeric" min="0" max="7" /></div>
+    <div><label for="e-g1">Dupla 2</label><input id="e-g1" type="number" inputmode="numeric" min="0" max="7" /></div>
+    <div class="h" id="e-pts-h">PONTOS (0, 15, 30, 40)</div>
+    <div><label for="e-p0">Dupla 1</label><input id="e-p0" type="number" inputmode="numeric" min="0" /></div>
+    <div><label for="e-p1">Dupla 2</label><input id="e-p1" type="number" inputmode="numeric" min="0" /></div>
+  </div>
+  <button class="btn btn-primary" id="ed-ok" type="button">Aplicar</button>
+  <button class="btn btn-secondary" id="ed-cancel" type="button">Cancelar</button>
+</dialog>
+
+<!-- Confirmação -->
 <dialog id="dlg-confirm">
   <h3 id="c-title"></h3>
   <p id="c-text"></p>
-  <div class="row">
-    <button class="btn btn-danger" id="c-ok" type="button">Confirmar</button>
-    <button class="btn btn-secondary" id="c-cancel" type="button">Cancelar</button>
-  </div>
+  <button class="btn btn-danger" id="c-ok" type="button">Confirmar</button>
+  <button class="btn btn-secondary" id="c-cancel" type="button">Cancelar</button>
 </dialog>
 
 <script>
 "use strict";
 /* =====================================================================
- * Beach Tennis - Placar
- * Estado S (regras)  |  Relógio T (tempo)  |  undo (pilha de snapshots)
+ * Beach Tennis Score — especificação funcional v1.0
+ *
+ *  S          estado da partida (sem fotos)
+ *  P          fotos [[dupla1], [dupla2]] (data URLs pequenas, salvas à parte)
+ *  T          relógio  { base, runStart }
+ *  undoStack  snapshots de S antes de cada ponto
+ *  G          G[k] = { s, u } estado no início da k-ésima unidade (game ou tie-break)
  * ===================================================================== */
-const STORE_KEY = "beachtennis:v2";
-const LAST_CFG_KEY = "beachtennis:lastConfig";
-const PT_LABEL = ["0", "15", "30", "40"];
-const MAX_UNDO = 400;
+const KEY = "beachtennis:v3", KEY_PHOTOS = "beachtennis:photos", KEY_CFG = "beachtennis:cfg";
+const PT = ["0", "15", "30", "40"];
+const MAX_UNDO = 500;
 
-let S = null;      // estado da partida
-let T = null;      // relógio { base, runStart }
-let undoStack = [];
-let ticker = null;
-let wakeLock = null;
-let lastTap = 0;
+let S = null, P = [[null, null], [null, null]], T = null, undoStack = [], G = [];
+let ticker = null, wakeLock = null, lastTap = 0, alertTimer = null;
+const setupPhotos = [[null, null], [null, null]];
 
 const $ = (id) => document.getElementById(id);
 const other = (t) => 1 - t;
 const clone = (o) => JSON.parse(JSON.stringify(o));
+const safe = (fn) => { try { return fn(); } catch (_) { return undefined; } };
 
 /* ---------------- Persistência ---------------- */
 function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify({ S, T, undoStack, savedAt: Date.now() })); } catch (_) {}
+  safe(() => localStorage.setItem(KEY, JSON.stringify({ S, T, undoStack, G, savedAt: Date.now() })));
+  safe(() => localStorage.setItem(KEY_PHOTOS, JSON.stringify(P)));
 }
-function load() {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (!raw) return null;
-    const d = JSON.parse(raw);
+function loadSaved() {
+  return safe(() => {
+    const d = JSON.parse(localStorage.getItem(KEY) || "null");
     if (!d || !d.S || !d.T || !Array.isArray(d.S.names)) return null;
+    d.P = JSON.parse(localStorage.getItem(KEY_PHOTOS) || "null") || [[null, null], [null, null]];
     return d;
-  } catch (_) { return null; }
+  }) || null;
 }
-function clearSaved() { try { localStorage.removeItem(STORE_KEY); } catch (_) {} }
 
-/* ---------------- Tempo ---------------- */
-function elapsedMs() { return T.base + (T.runStart ? Date.now() - T.runStart : 0); }
+/* ---------------- Relógio ---------------- */
+const elapsedMs = () => T.base + (T.runStart ? Date.now() - T.runStart : 0);
 function fmt(ms) {
-  const s = Math.floor(ms / 1000), h = Math.floor(s / 3600);
-  const m = String(Math.floor((s % 3600) / 60)).padStart(2, "0"), sec = String(s % 60).padStart(2, "0");
-  return h ? `${h}:${m}:${sec}` : `${m}:${sec}`;
+  const s = Math.floor(ms / 1000), p = (n) => String(n).padStart(2, "0");
+  return `${p(Math.floor(s / 3600))}:${p(Math.floor((s % 3600) / 60))}:${p(s % 60)}`;
 }
-function renderTimer() {
-  const el = $("timer");
-  el.textContent = fmt(elapsedMs());
-  el.classList.toggle("paused", !T.runStart && !S.finished);
-}
-function startClock() { if (!T.runStart) { T.runStart = Date.now(); } }
+function startClock() { if (!T.runStart) T.runStart = Date.now(); }
 function stopClock() { if (T.runStart) { T.base += Date.now() - T.runStart; T.runStart = null; } }
-
-/* ---------------- Novo jogo ---------------- */
-function newState(cfg) {
-  return {
-    names: cfg.names, firstServer: cfg.firstServer, nSets: cfg.nSets, adv: cfg.adv,
-    sets: [], setsWon: [0, 0], games: [0, 0], points: [0, 0],
-    tb: false, tbPts: [0, 0], tbFirst: 0,
-    server: cfg.firstServer, serverPlayer: [0, 0],
-    totalPoints: [0, 0], log: [],
-    finished: false, winner: -1, manual: false
-  };
+function renderTimer() {
+  $("timer").textContent = fmt(elapsedMs());
+  $("timer").classList.toggle("paused", !T.runStart && !S.finished);
 }
-function startMatch(cfg) {
+
+/* ---------------- Estado ---------------- */
+function newState(cfg) {
+  const s = {
+    names: cfg.names,
+    first: cfg.first,            // [dupla, atleta] que saca o Game 1
+    second: null,                // atleta da dupla adversária que saca o Game 2
+    games: [0, 0], points: [0, 0],
+    tb: false, tbPts: [0, 0], tbResult: null,
+    log: [],                     // { game, winner, loserScore }
+    totalPoints: [0, 0],
+    finished: false, winner: -1
+  };
+  return s;
+}
+function startMatch(cfg, photos) {
   S = newState(cfg);
+  P = clone(photos);
   T = { base: 0, runStart: Date.now() };
   undoStack = [];
+  G = [{ s: clone(S), u: 0 }];
   save();
-  showScreen("game");
   boot();
 }
 
 /* ---------------- Regras ---------------- */
-function snapshot() {
-  undoStack.push(clone(S));
-  if (undoStack.length > MAX_UNDO) undoStack.shift();
+const gamesPlayed = () => S.games[0] + S.games[1];
+const units = () => S.log.length + (S.tbResult ? 1 : 0);
+
+/* Sequência de saque: dupla A atleta 1 → dupla B atleta 1 → dupla A atleta 2 → dupla B atleta 2 … */
+function serverOrder() {
+  const f = S.first[0], fp = S.first[1], o = other(f), op = S.second;
+  return [[f, fp], [o, op], [f, 1 - fp], [o, op === null ? null : 1 - op]];
 }
+function currentServer() {
+  const ord = serverOrder();
+  if (!S.tb) return ord[gamesPlayed() % 4];
+  // Tie-break: 1 ponto, depois 2 por vez, alternando as duplas e os atletas de cada dupla
+  const total = S.tbPts[0] + S.tbPts[1];
+  const turn = total === 0 ? 0 : (total + 1) >> 1;
+  const [f, fp] = ord[0], [o, op] = ord[1];
+  const team = turn % 2 === 0 ? f : o;
+  const n = turn >> 1;
+  const start = team === f ? fp : op;
+  return [team, start === null ? null : (n % 2 === 0 ? start : 1 - start)];
+}
+const needSecond = () => S && S.second === null && (gamesPlayed() >= 1 || S.tb);
 
 function addPoint(t) {
-  if (!S || S.finished) return;
-  if (!T.runStart) startClock();   // marcar ponto retoma o relógio
-  snapshot();
+  if (!S || S.finished || needSecond()) return;
+  if (!T.runStart) startClock();
+  undoStack.push(clone(S));
+  if (undoStack.length > MAX_UNDO) { undoStack.shift(); G.forEach((g) => (g.u = Math.max(0, g.u - 1))); }
   S.totalPoints[t]++;
-  const notice = S.tb ? tiebreakPoint(t) : gamePoint(t);
-  if (notice) toast(notice);
-  afterChange();
+  const alertInfo = S.tb ? tiebreakPoint(t) : gamePoint(t);
+  afterChange(alertInfo);
 }
 
 function gamePoint(t) {
   const o = other(t);
   S.points[t]++;
-  const p = S.points;
-  const won = p[t] >= 4 && (!S.adv || p[t] - p[o] >= 2);
-  if (!won) return null;
-  return gameWon(t, scoreText(p));
+  if (S.points[t] < 4) return null;           // 40x40: o próximo ponto decide (sem vantagem)
+  return gameWon(t, PT[S.points[o]]);
 }
 
-function scoreText(p) {
-  const f = (a, b) => (a >= 4 ? "AD" : PT_LABEL[Math.min(a, 3)]);
-  if (p[0] >= 3 && p[1] >= 3) return p[0] > p[1] ? "AD-40" : p[1] > p[0] ? "40-AD" : "40-40";
-  return `${f(p[0])}-${f(p[1])}`;
-}
-
-function gameWon(t, text) {
-  const o = other(t);
-  S.log.push({ set: S.sets.length + 1, winner: t, server: S.server, text });
+function gameWon(t, loserScore) {
+  const n = gamesPlayed() + 1;
+  S.log.push({ game: n, winner: t, loserScore });
   S.games[t]++;
   S.points = [0, 0];
-  // quem sacou passa a vez para o outro jogador da dupla no próximo saque dela
-  S.serverPlayer[S.server] = 1 - S.serverPlayer[S.server];
-  S.server = other(S.server);
-
-  const g = S.games;
-  if (g[0] === 6 && g[1] === 6) {
-    S.tb = true; S.tbPts = [0, 0]; S.tbFirst = S.server;
-    return "TIE-BREAK! Primeiro a 7 (diferença de 2)";
-  }
-  const setOver = (g[t] >= 6 && g[t] - g[o] >= 2) || g[t] === 7;
-  if (setOver) return setWon(t, null);
-  return (g[0] + g[1]) % 2 === 1 ? "Troca de lado" : null;
+  const g = S.games, o = other(t);
+  if (g[t] >= 6 && g[t] - g[o] >= 2 && g[t] <= 7 || g[t] === 7) return finishSet(t);
+  if (g[0] === 6 && g[1] === 6) { S.tb = true; S.tbPts = [0, 0]; G.push({ s: clone(S), u: undoStack.length }); return { tb: true }; }
+  G.push({ s: clone(S), u: undoStack.length });
+  return n % 2 === 1 ? { side: `Final do Game ${n}` } : null;
 }
 
 function tiebreakPoint(t) {
   const o = other(t);
   S.tbPts[t]++;
-  const [a, b] = S.tbPts, total = a + b;
+  const total = S.tbPts[0] + S.tbPts[1];
   if (S.tbPts[t] >= 7 && S.tbPts[t] - S.tbPts[o] >= 2) {
-    S.log.push({ set: S.sets.length + 1, winner: t, server: S.server, text: `TB ${a}-${b}` });
+    S.tbResult = { winner: t, score: [...S.tbPts] };
     S.games[t] = 7;
-    return setWon(t, [a, b]);
+    return finishSet(t);
   }
-  // 1º saque do tie-break: 1 ponto; depois alterna a cada 2 pontos
-  S.server = ((total + 1) >> 1) % 2 === 0 ? S.tbFirst : other(S.tbFirst);
-  return total % 6 === 0 ? "Troca de lado" : null;
+  return total % 4 === 1 ? { side: `Tie-Break: ${total} ${total === 1 ? "ponto" : "pontos"}` } : null;
 }
 
-function setWon(t, tbScore) {
-  S.sets.push({ g: [...S.games], tb: tbScore });
-  S.setsWon[t]++;
-  const firstOfTb = S.tb ? S.tbFirst : null;
-  S.games = [0, 0]; S.points = [0, 0]; S.tb = false; S.tbPts = [0, 0];
-  if (S.setsWon[t] >= Math.ceil(S.nSets / 2)) {
-    S.finished = true; S.winner = t;
-    stopClock();
-    return null;
-  }
-  // quem recebeu primeiro no tie-break saca primeiro no set seguinte
-  if (firstOfTb !== null) S.server = other(firstOfTb);
-  return `Set ${S.sets.length} para ${teamShort(t)}! Troca de lado`;
+function finishSet(t) {
+  S.finished = true; S.winner = t;
+  S.points = S.tb ? S.points : [0, 0];
+  stopClock();
+  return null;
 }
 
-function undo() {
-  if (!undoStack.length) return;
+/* Verifica fim de partida após edição manual */
+function recheckEnd() {
+  const g = S.games;
+  S.finished = false; S.winner = -1; S.tbResult = null;
+  if (g[0] === 6 && g[1] === 6) {
+    S.tb = true;
+    for (const t of [0, 1]) {
+      if (S.tbPts[t] >= 7 && S.tbPts[t] - S.tbPts[other(t)] >= 2) { S.tbResult = { winner: t, score: [...S.tbPts] }; g[t] = 7; S.finished = true; S.winner = t; }
+    }
+  } else {
+    S.tb = false; S.tbPts = [0, 0];
+    for (const t of [0, 1]) if (g[t] >= 6 && g[t] - g[other(t)] >= 2 || g[t] === 7) { S.finished = true; S.winner = t; }
+  }
+  if (S.finished) { S.points = [0, 0]; stopClock(); }
+}
+
+/* ---------------- Correção ---------------- */
+function undoPoint() {
+  if (!undoStack.length) return toast("Nada para desfazer");
   const wasFinished = S.finished;
   S = undoStack.pop();
-  if (wasFinished && !S.finished) { showScreen("game"); startClock(); }
-  afterChange(true);
+  while (G.length > 1 && G[G.length - 1].u > undoStack.length) G.pop();
+  if (wasFinished) startClock();
+  afterChange(null, true);
 }
-
-function swapServer() {
-  snapshot();
-  S.server = other(S.server);
-  afterChange();
+function undoGame() {
+  const n = units();
+  const entry = G[n - 1];
+  if (n === 0 || !entry) return toast("Não há game para desfazer");
+  const wasFinished = S.finished;
+  S = clone(entry.s);
+  undoStack.length = Math.min(undoStack.length, entry.u);
+  G.length = n;
+  if (wasFinished) startClock();
+  afterChange(null, true);
 }
-
-function endManually() {
-  snapshot();
-  const gs = S.sets.reduce((a, s) => [a[0] + s.g[0], a[1] + s.g[1]], [S.games[0], S.games[1]]);
-  const ws = [S.setsWon[0] + 0, S.setsWon[1] + 0];
-  S.manual = true; S.finished = true;
-  S.winner = ws[0] !== ws[1] ? (ws[0] > ws[1] ? 0 : 1) : gs[0] !== gs[1] ? (gs[0] > gs[1] ? 0 : 1) : -1;
-  stopClock();
-  afterChange();
+function openEdit() {
+  $("e-g0").value = S.games[0]; $("e-g1").value = S.games[1];
+  const tb = S.tb;
+  $("e-p0").value = tb ? S.tbPts[0] : S.points[0] > 3 ? 3 : PT[S.points[0]];
+  $("e-p1").value = tb ? S.tbPts[1] : S.points[1] > 3 ? 3 : PT[S.points[1]];
+  $("e-pts-h").textContent = tb ? "PONTOS DO TIE-BREAK" : "PONTOS (0, 15, 30, 40)";
+  $("edit-note").textContent = "Ajuste os games e os pontos do game atual.";
+  $("dlg-edit").showModal();
+}
+function applyEdit() {
+  const g = [+$("e-g0").value, +$("e-g1").value];
+  const inGame = g[0] === 6 && g[1] === 6;
+  const raw = [$("e-p0").value, $("e-p1").value];
+  const pts = raw.map((v) => {
+    const n = parseInt(v, 10);
+    if (isNaN(n) || n < 0) return NaN;
+    return inGame ? n : Math.max(0, PT.indexOf(String(n)));
+  });
+  const validGames = g.every((x) => Number.isInteger(x) && x >= 0 && x <= 7) &&
+    !(Math.max(...g) === 7 && ![5, 6].includes(Math.min(...g))) && !(g[0] === 7 && g[1] === 7);
+  if (!validGames || pts.some(isNaN)) return toast("Valores inválidos");
+  if (!inGame && raw.some((v) => !PT.includes(String(parseInt(v, 10))))) return toast("Pontos devem ser 0, 15, 30 ou 40");
+  undoStack.push(clone(S));
+  S.games = g;
+  if (inGame) S.tbPts = pts; else S.points = pts;
+  recheckEnd();
+  // após edição, o histórico por game deixa de ser reversível além deste ponto
+  const u = units();
+  G = Array(u).fill(null); G.push({ s: clone(S), u: undoStack.length });
+  $("dlg-edit").close();
+  afterChange(null, true);
 }
 
 /* ---------------- Render ---------------- */
-function teamNames(t) { return S.names[t]; }
-function teamShort(t) { return `${S.names[t][0]} e ${S.names[t][1]}`; }
+const joinNames = (t) => `${S.names[t][0]} e ${S.names[t][1]}`;
+const initial = (n) => (n.trim()[0] || "?").toUpperCase();
 
-function pointLabel(t) {
-  if (S.tb) return String(S.tbPts[t]);
-  const p = S.points;
-  if (S.adv && p[0] >= 3 && p[1] >= 3) {
-    if (p[0] === p[1]) return "40";
-    return p[t] > p[other(t)] ? "AD" : "40";
-  }
-  return PT_LABEL[Math.min(p[t], 3)];
+function paintPhoto(el, url, name) {
+  el.style.backgroundImage = url ? `url("${url}")` : "";
+  el.textContent = url ? "" : initial(name);
+}
+function makePhoto(url, name, extraClass) {
+  const d = document.createElement("div");
+  d.className = "photo " + (extraClass || "");
+  paintPhoto(d, url, name);
+  return d;
 }
 
-function setText(s) { return `${s.g[0]}–${s.g[1]}`; }
-
-function render() {
+function renderTiles() {
+  const [st, sp] = needSecond() ? [-1, -1] : (S.finished ? [-1, -1] : currentServer());
   for (const t of [0, 1]) {
-    const [a, b] = teamNames(t);
-    const serving = S.server === t;
-    const sp = S.serverPlayer[t];
-    const nm = $("names-" + t);
-    nm.textContent = "";
-    [a, b].forEach((n, i) => {
-      if (i) { const e = document.createElement("span"); e.className = "and"; e.textContent = "e"; nm.appendChild(e); }
-      const s = document.createElement("span");
-      s.textContent = n;
-      if (serving && i === sp) s.className = "srv";
-      nm.appendChild(s);
-    });
-    $("panel-" + t).classList.toggle("serving", serving);
-    $("srv-" + t).textContent = serving ? `🎾 SACA: ${teamNames(t)[sp]}`.toUpperCase() : "";
-    $("pts-" + t).textContent = pointLabel(t);
-    $("games-" + t).textContent = S.games[t];
-    $("sets-" + t).textContent = S.setsWon[t];
-    $("sets-wrap-" + t).hidden = S.nSets === 1;
+    const box = $("tiles-" + t);
+    box.textContent = "";
+    for (let i = 0; i < 2; i++) {
+      const serving = st === t && sp === i;
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      const ph = makePhoto(P[t][i], S.names[t][i], serving ? "serving" : "");
+      if (serving) { const b = document.createElement("span"); b.className = "ball"; b.textContent = "🎾"; ph.appendChild(b); }
+      const nm = document.createElement("div");
+      nm.className = "nm" + (serving ? " srv" : "");
+      nm.textContent = S.names[t][i];
+      tile.append(ph, nm);
+      box.appendChild(tile);
+    }
   }
-  const chips = $("chips");
-  chips.textContent = "";
-  const add = (txt, cls) => { const c = document.createElement("span"); c.className = "chip " + (cls || ""); c.textContent = txt; chips.appendChild(c); };
-  S.sets.forEach((s, i) => add(`Set ${i + 1}: ${setText(s)}${s.tb ? ` (${s.tb[0]}-${s.tb[1]})` : ""}`, "set-hist"));
-  if (S.nSets > 1) add(`Set ${S.sets.length + 1}`);
-  if (S.tb) add("Tie-break", "hot");
-  else if (!S.adv && S.points[0] === 3 && S.points[1] === 3) add("Ponto de ouro", "hot");
-  else if (S.adv && S.points[0] >= 3 && S.points[0] === S.points[1]) add("Iguais", "hot");
+}
 
-  $("btn-undo").disabled = undoStack.length === 0;
-  $("btn-pause").textContent = T.runStart ? "⏸ Pausar" : "▶ Retomar";
+function xScore(a, b, cls) {
+  return `<span class="c1">${a}</span><span class="x"> x </span><span class="c2">${b}</span>`;
+}
+function render() {
+  renderTiles();
+  const tb = S.tb;
+  $("lbl-pts").textContent = tb ? "Tie-Break" : (S.points[0] === 3 && S.points[1] === 3 ? "Ponto de ouro" : "Pontos");
+  $("lbl-pts").classList.toggle("hot", tb || (S.points[0] === 3 && S.points[1] === 3));
+  const p = tb ? S.tbPts : S.points.map((v) => PT[Math.min(v, 3)]);
+  $("pts").innerHTML = xScore(p[0], p[1]);
+  $("games").innerHTML = xScore(S.games[0], S.games[1]);
+  $("gamenum").textContent = tb ? "" : `Game ${gamesPlayed() + 1}`;
+  $("btn-pause").textContent = T.runStart ? "⏸ PAUSAR" : "▶ RETOMAR";
   renderTimer();
 }
 
 function renderFinal() {
   const w = S.winner;
-  $("f-trophy").textContent = w === -1 ? "🤝" : "🏆";
-  $("f-title").textContent = S.manual ? "Partida encerrada" : "Vencedores";
-  $("f-winner").textContent = w === -1 ? "Empate" : teamShort(w);
-  const box = $("f-score");
-  box.textContent = "";
-  const sets = S.sets.slice();
-  if (S.manual && (S.games[0] || S.games[1])) sets.push({ g: [...S.games], tb: null });
-  sets.forEach((s) => {
-    const d = document.createElement("div");
-    d.className = "set-box num";
-    d.textContent = `${s.g[0]} x ${s.g[1]}`;
-    if (s.tb) { const sp = document.createElement("sup"); sp.textContent = ` (${s.tb[0]}-${s.tb[1]})`; d.appendChild(sp); }
-    box.appendChild(d);
-  });
+  const ph = $("f-photos");
+  ph.textContent = "";
+  for (let i = 0; i < 2; i++) ph.appendChild(makePhoto(P[w][i], S.names[w][i]));
+  $("f-winner").textContent = joinNames(w);
+  $("f-score").innerHTML = w === 0 ? xScore(S.games[0], S.games[1]) : xScore(S.games[0], S.games[1]);
   $("f-time").textContent = fmt(elapsedMs());
-  $("f-games").textContent = S.log.length;
-  $("f-points").textContent = `${S.totalPoints[0]}-${S.totalPoints[1]}`;
+  $("f-tb").hidden = !S.tbResult;
+  if (S.tbResult) {
+    const r = S.tbResult;
+    $("f-tb-text").textContent = `${joinNames(r.winner)} venceram: ${r.score[0]} x ${r.score[1]}`;
+  }
   const log = $("f-log");
   log.textContent = "";
-  const perSet = {};
   S.log.forEach((g) => {
-    perSet[g.set] = (perSet[g.set] || 0) + 1;
     const row = document.createElement("div");
-    row.className = "w" + (g.winner + 1);
-    const l = document.createElement("span"); l.textContent = `Set ${g.set} · game ${perSet[g.set]}`;
-    const r = document.createElement("span"); r.textContent = `${g.winner === 0 ? "Dupla 1" : "Dupla 2"} (${g.text})`;
-    row.append(l, r);
+    row.className = "g-row w" + (g.winner + 1);
+    const a = document.createElement("div"); a.className = "g"; a.textContent = `Game ${g.game}`;
+    const b = document.createElement("div"); b.className = "who"; b.textContent = `Dupla ${g.winner + 1} venceu`;
+    const c = document.createElement("div"); c.className = "sc num";
+    c.innerHTML = g.winner === 0 ? `<em>GAME</em> x ${g.loserScore}` : `${g.loserScore} x <em>GAME</em>`;
+    row.append(a, b, c);
     log.appendChild(row);
   });
-  log.style.display = S.log.length ? "" : "none";
 }
 
-function afterChange(fromUndo) {
+function afterChange(info, quiet) {
   save();
-  if (S.finished) { renderFinal(); showScreen("final"); releaseWake(); }
-  else render();
-  if (!fromUndo && navigator.vibrate) navigator.vibrate(18);
+  if (S.finished) { renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); return; }
+  showScreen("game");
+  render();
+  if (!quiet && navigator.vibrate) navigator.vibrate(18);
+  if (needSecond()) { openPick(info && info.side); return; }
+  if (info && info.tb) toast("TIE-BREAK! Diferença mínima de 2 pontos");
+  if (info && info.side) showAlert(info.side);
 }
 
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id));
-}
+function showScreen(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id)); }
 
 let toastTimer;
 function toast(msg) {
-  const el = $("toast");
-  el.textContent = msg;
-  el.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 3500);
+  $("toast").textContent = msg; $("toast").classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => $("toast").classList.remove("show"), 3200);
 }
+function showAlert(sub) {
+  $("side-sub").textContent = sub || "";
+  $("side-alert").classList.add("show");
+  clearTimeout(alertTimer); alertTimer = setTimeout(hideAlert, 8000);
+}
+function hideAlert() { $("side-alert").classList.remove("show"); clearTimeout(alertTimer); }
+
+/* ---------------- Escolha do sacador do Game 2 ---------------- */
+function openPick(sideNote) {
+  const t = other(S.first[0]);
+  $("pick-note").textContent = `${sideNote ? "🔄 TROCA DE LADO — " : ""}Selecione o atleta da Dupla ${t + 1} que irá sacar.`;
+  const row = $("pick-row");
+  row.textContent = "";
+  for (let i = 0; i < 2; i++) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "pick-btn";
+    b.append(makePhoto(P[t][i], S.names[t][i]), document.createTextNode(S.names[t][i]));
+    b.addEventListener("click", () => { S.second = i; $("dlg-pick").close(); save(); render(); if (sideNote) showAlert(sideNote); });
+    row.appendChild(b);
+  }
+  if (!$("dlg-pick").open) $("dlg-pick").showModal();
+}
+$("dlg-pick").addEventListener("cancel", (e) => e.preventDefault());
 
 /* ---------------- Wake lock / tela cheia ---------------- */
 async function requestWake() {
   try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => (wakeLock = null)); } } catch (_) {}
 }
 function releaseWake() { try { wakeLock && wakeLock.release(); } catch (_) {} wakeLock = null; }
-function toggleFs() {
-  if (document.fullscreenElement) document.exitFullscreen();
-  else document.documentElement.requestFullscreen?.().catch(() => {});
+function toggleFs() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.().catch(() => {}); }
+
+/* ---------------- Cadastro: fotos e nomes ---------------- */
+function resizeImage(file, size = 240) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = c.height = size;
+      const m = Math.min(img.width, img.height), sx = (img.width - m) / 2, sy = (img.height - m) / 2;
+      c.getContext("2d").drawImage(img, sx, sy, m, m, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("img")); };
+    img.src = url;
+  });
 }
 
-/* ---------------- Fluxos de UI ---------------- */
+function buildSetup(cfg) {
+  for (const t of [0, 1]) {
+    const box = $("ath-" + t);
+    box.textContent = "";
+    for (let i = 0; i < 2; i++) {
+      const card = document.createElement("div");
+      card.className = "athlete-card";
+      const ph = makePhoto(setupPhotos[t][i], cfg.names[t][i] || "?", setupPhotos[t][i] ? "has" : "");
+      ph.title = "Toque para adicionar foto";
+      ph.setAttribute("role", "button"); ph.tabIndex = 0;
+      if (!setupPhotos[t][i]) ph.textContent = "📷";
+      const file = document.createElement("input");
+      file.type = "file"; file.accept = "image/*"; file.hidden = true;
+      const pick = () => file.click();
+      ph.addEventListener("click", pick);
+      ph.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+      file.addEventListener("change", async () => {
+        if (!file.files[0]) return;
+        try { setupPhotos[t][i] = await resizeImage(file.files[0]); paintPhoto(ph, setupPhotos[t][i], ""); ph.classList.add("has"); }
+        catch (_) { toast("Não foi possível ler a imagem"); }
+      });
+      const name = document.createElement("input");
+      name.type = "text"; name.id = `n-${t}-${i}`; name.maxLength = 18; name.autocomplete = "off";
+      name.placeholder = `Atleta ${t * 2 + i + 1}`; name.value = cfg.names[t][i] || "";
+      const lab = document.createElement("label");
+      lab.className = "first-pick";
+      const r = document.createElement("input");
+      r.type = "radio"; r.name = "first"; r.value = `${t}-${i}`;
+      r.checked = cfg.first[0] === t && cfg.first[1] === i;
+      lab.append(r, document.createTextNode("🎾 Saca primeiro"));
+      card.append(ph, file, name, lab);
+      box.appendChild(card);
+    }
+  }
+}
+function readSetup() {
+  const names = [0, 1].map((t) => [0, 1].map((i) => {
+    const v = $(`n-${t}-${i}`).value.trim().replace(/\s+/g, " ");
+    return (v || `Atleta ${t * 2 + i + 1}`).toUpperCase();
+  }));
+  const [ft, fi] = document.querySelector('input[name="first"]:checked').value.split("-").map(Number);
+  return { names, first: [ft, fi] };
+}
+
+/* ---------------- Fluxo ---------------- */
 function boot() {
   clearInterval(ticker);
   ticker = setInterval(() => { if (S && !S.finished) renderTimer(); }, 500);
   requestWake();
-  if (S.finished) { renderFinal(); showScreen("final"); } else { render(); showScreen("game"); }
+  hideAlert();
+  if (S.finished) { renderFinal(); showScreen("final"); }
+  else { showScreen("game"); render(); if (needSecond()) openPick(); }
 }
-
-function readConfig() {
-  const names = [0, 1].map((t) => [0, 1].map((i) => {
-    const v = $(`n-${t}-${i}`).value.trim().replace(/\s+/g, " ");
-    return (v || `Jogador ${t * 2 + i + 1}`).toUpperCase();
-  }));
-  const val = (name) => document.querySelector(`input[name="${name}"]:checked`).value;
-  return { names, firstServer: +val("first"), nSets: +val("sets"), adv: val("rule") === "adv" };
-}
-function writeConfig(cfg) {
-  [0, 1].forEach((t) => [0, 1].forEach((i) => { $(`n-${t}-${i}`).value = cfg.names[t][i]; }));
-  $("f" + cfg.firstServer).checked = true;
-  $("s" + cfg.nSets).checked = true;
-  (cfg.adv ? $("r1") : $("r0")).checked = true;
-}
-
-function confirmDialog(title, text, okLabel, onOk) {
-  $("c-title").textContent = title;
-  $("c-text").textContent = text;
-  $("c-ok").textContent = okLabel;
-  const dlg = $("dlg-confirm");
-  $("c-ok").onclick = () => { dlg.close(); onOk(); };
-  $("c-cancel").onclick = () => dlg.close();
-  dlg.showModal();
-}
-
 function goSetup() {
-  clearSaved();
-  S = null; T = null; undoStack = [];
-  clearInterval(ticker);
+  safe(() => localStorage.removeItem(KEY));
+  S = null; T = null; undoStack = []; G = [];
+  clearInterval(ticker); hideAlert(); releaseWake();
   $("resume-box").classList.remove("show");
+  const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
+  buildSetup(cfg && cfg.names ? cfg : { names: [["", ""], ["", ""]], first: [0, 0] });
   showScreen("setup");
 }
-
-function summary(st) {
-  const sets = st.sets.map((s) => `${s.g[0]}-${s.g[1]}`).join(" / ");
-  const cur = `${st.games[0]}-${st.games[1]}`;
-  return `${st.names[0][0]}/${st.names[0][1]} x ${st.names[1][0]}/${st.names[1][1]} (${sets ? sets + " / " : ""}${cur})`;
-}
-
-function shareText() {
-  const sets = S.sets.map((s) => `${s.g[0]}x${s.g[1]}${s.tb ? `(${s.tb[0]}-${s.tb[1]})` : ""}`).join("  ");
-  const w = S.winner === -1 ? "Empate" : `Vencedores: ${teamShort(S.winner)}`;
-  return `🎾 Beach Tennis\n${teamShort(0)} x ${teamShort(1)}\nPlacar: ${sets || `${S.games[0]}x${S.games[1]}`}\n${w}\nTempo: ${fmt(elapsedMs())}`;
+function confirmDialog(title, text, ok, fn) {
+  $("c-title").textContent = title; $("c-text").textContent = text; $("c-ok").textContent = ok;
+  $("c-ok").onclick = () => { $("dlg-confirm").close(); fn(); };
+  $("c-cancel").onclick = () => $("dlg-confirm").close();
+  $("dlg-confirm").showModal();
 }
 
 /* ---------------- Eventos ---------------- */
-[0, 1].forEach((t) => $("panel-" + t).addEventListener("click", (e) => {
+[0, 1].forEach((t) => $("pt-btn-" + t).addEventListener("click", () => {
   const now = Date.now();
   if (now - lastTap < 250) return;   // evita toque duplo acidental
   lastTap = now;
-  const p = e.currentTarget;
-  p.classList.remove("flash"); void p.offsetWidth; p.classList.add("flash");
   addPoint(t);
 }));
-$("btn-undo").addEventListener("click", undo);
+$("side-alert").addEventListener("click", hideAlert);
 $("btn-pause").addEventListener("click", () => { T.runStart ? stopClock() : startClock(); save(); render(); });
-$("btn-menu").addEventListener("click", () => $("dlg-menu").showModal());
 $("btn-fs").addEventListener("click", toggleFs);
-$("m-close").addEventListener("click", () => $("dlg-menu").close());
-$("m-swap").addEventListener("click", () => { $("dlg-menu").close(); swapServer(); });
-$("m-end").addEventListener("click", () => {
-  $("dlg-menu").close();
-  confirmDialog("Encerrar partida?", "O resultado atual será registrado como final.", "Encerrar", endManually);
-});
-$("m-reset").addEventListener("click", () => {
-  $("dlg-menu").close();
-  confirmDialog("Descartar partida?", "Todo o placar será perdido.", "Descartar", goSetup);
-});
-
+$("btn-fix").addEventListener("click", () => $("dlg-fix").showModal());
+$("fx-close").addEventListener("click", () => $("dlg-fix").close());
+$("fx-point").addEventListener("click", () => { $("dlg-fix").close(); undoPoint(); });
+$("fx-game").addEventListener("click", () => { $("dlg-fix").close(); undoGame(); });
+$("fx-edit").addEventListener("click", () => { $("dlg-fix").close(); openEdit(); });
+$("ed-ok").addEventListener("click", applyEdit);
+$("ed-cancel").addEventListener("click", () => $("dlg-edit").close());
+$("btn-reset").addEventListener("click", () => confirmDialog("Reiniciar partida?", "Todo o placar será perdido e você voltará à tela inicial.", "Reiniciar", goSetup));
+$("btn-new").addEventListener("click", goSetup);
+$("btn-back").addEventListener("click", () => { startClock(); undoPoint(); });
 $("btn-start").addEventListener("click", () => {
-  const cfg = readConfig();
-  try { localStorage.setItem(LAST_CFG_KEY, JSON.stringify(cfg)); } catch (_) {}
-  startMatch(cfg);
+  const cfg = readSetup();
+  safe(() => localStorage.setItem(KEY_CFG, JSON.stringify(cfg)));
+  startMatch(cfg, setupPhotos);
 });
 $("btn-resume").addEventListener("click", () => {
-  const d = load();
-  if (!d) return;
-  ({ S, T, undoStack } = d);
-  undoStack = undoStack || [];
-  // não contar o tempo em que o app ficou fechado
-  if (T.runStart) { T.base += Math.max(0, (d.savedAt || Date.now()) - T.runStart); T.runStart = Date.now(); }
+  const d = loadSaved(); if (!d) return;
+  ({ S, T, undoStack, G, P } = d);
+  undoStack = undoStack || []; G = G || [];
+  if (T.runStart) { T.base += Math.max(0, (d.savedAt || Date.now()) - T.runStart); T.runStart = Date.now(); }  // não conta o app fechado
   boot();
-});
-$("btn-rematch").addEventListener("click", () => {
-  const cfg = { names: S.names, firstServer: other(S.firstServer), nSets: S.nSets, adv: S.adv };
-  startMatch(cfg);
-});
-$("btn-new").addEventListener("click", goSetup);
-$("btn-share").addEventListener("click", async () => {
-  const text = shareText();
-  try {
-    if (navigator.share) await navigator.share({ text });
-    else { await navigator.clipboard.writeText(text); toast("Resultado copiado!"); }
-  } catch (_) {}
 });
 
 document.addEventListener("keydown", (e) => {
-  if (!S || S.finished || !$("game").classList.contains("active")) return;
-  if (document.querySelector("dialog[open]")) return;
+  if (!S || S.finished || !$("game").classList.contains("active") || document.querySelector("dialog[open]")) return;
   const k = e.key.toLowerCase();
-  if (k === "1" || k === "arrowleft" || k === "a") addPoint(0);
-  else if (k === "2" || k === "arrowright" || k === "l") addPoint(1);
-  else if (k === "u" || k === "z" || k === "backspace") undo();
+  if (k === "1" || k === "arrowleft") addPoint(0);
+  else if (k === "2" || k === "arrowright") addPoint(1);
+  else if (k === "u" || k === "z" || k === "backspace") undoPoint();
   else if (k === " ") { e.preventDefault(); $("btn-pause").click(); }
 });
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && S && !S.finished) { requestWake(); renderTimer(); }
-  else save();
+  else if (S) save();
 });
 window.addEventListener("pagehide", () => { if (S) save(); });
 
 /* ---------------- Inicialização ---------------- */
 (function init() {
-  try {
-    const last = JSON.parse(localStorage.getItem(LAST_CFG_KEY) || "null");
-    if (last && last.names) writeConfig(last);
-  } catch (_) {}
-  const d = load();
+  const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
+  buildSetup(cfg && cfg.names ? cfg : { names: [["", ""], ["", ""]], first: [0, 0] });
+  const d = loadSaved();
   if (d && !d.S.finished) {
-    $("resume-desc").textContent = summary(d.S);
+    const s = d.S;
+    $("resume-desc").textContent = `${s.names[0].join("/")} ${s.games[0]} x ${s.games[1]} ${s.names[1].join("/")}`;
     $("resume-box").classList.add("show");
   }
 })();

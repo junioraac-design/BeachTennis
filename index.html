@@ -42,6 +42,7 @@
 
     <button class="btn btn-primary" id="btn-start" type="button">Começar partida</button>
     <div class="menu-row">
+      <button class="btn btn-secondary" id="btn-tourneys" type="button">🏆 Torneios</button>
       <button class="btn btn-secondary" id="btn-history" type="button">📊 Histórico e ranking</button>
       <button class="btn btn-secondary" id="btn-settings" type="button">⚙ Configurações</button>
     </div>
@@ -141,6 +142,58 @@
   </div>
 </main>
 
+<!-- ============ TORNEIOS ============ -->
+<main id="tourneys" class="screen">
+  <div class="setup-card">
+    <div class="hdr"><button class="back" id="tl-back" type="button">← Voltar</button><h1>Torneios</h1></div>
+    <button class="btn btn-primary" id="tl-new" type="button" style="margin-top:0">＋ Novo torneio</button>
+    <div id="tl-list" style="margin-top:14px"></div>
+    <button class="btn btn-secondary" id="tl-rank" type="button">🏅 Ranking geral dos torneios</button>
+  </div>
+</main>
+
+<main id="tnew" class="screen">
+  <div class="setup-card">
+    <div class="hdr"><button class="back" id="tn-back" type="button">← Voltar</button><h1>Novo torneio</h1></div>
+    <div class="field-label">Formato</div>
+    <div class="seg wrap">
+      <input type="radio" name="tkind" id="tk0" value="super8" checked><label for="tk0">8️⃣ Super 8</label>
+      <input type="radio" name="tkind" id="tk1" value="rei"><label for="tk1">👑 Rei da Quadra</label>
+      <input type="radio" name="tkind" id="tk2" value="rainha"><label for="tk2">👸 Rainha da Quadra</label>
+      <input type="radio" name="tkind" id="tk3" value="chave"><label for="tk3">🏆 Chaveamento</label>
+    </div>
+    <p class="help" id="tn-help"></p>
+    <div class="field-label">Nome do torneio (opcional)</div>
+    <input type="text" id="tn-name" class="txt" maxlength="40" placeholder="Ex.: Torneio de sábado" />
+    <div class="field-label" id="tn-list-label">Atletas (um por linha)</div>
+    <textarea id="tn-list" class="txt" rows="9"></textarea>
+    <div id="tn-courts-row" hidden>
+      <div class="field-label">Quadras</div>
+      <div class="seg"><input type="radio" name="tcourts" id="tc1" value="1" checked><label for="tc1">1 quadra</label><input type="radio" name="tcourts" id="tc2" value="2"><label for="tc2">2 quadras</label></div>
+    </div>
+    <div class="field-label">Tamanho do set</div>
+    <div class="seg"><input type="radio" name="tset" id="tt6" value="6" checked><label for="tt6">6 games</label><input type="radio" name="tset" id="tt4" value="4"><label for="tt4">4 games (curto)</label></div>
+    <button class="btn btn-primary" id="tn-create" type="button">Criar torneio</button>
+  </div>
+</main>
+
+<main id="tdetail" class="screen">
+  <div class="setup-card">
+    <div class="hdr"><button class="back" id="td-back" type="button">← Voltar</button><h1 id="td-title"></h1></div>
+    <div id="td-podium"></div>
+    <div class="seg tabs">
+      <input type="radio" name="dtab" id="dt0" value="games" checked><label for="dt0">Jogos</label>
+      <input type="radio" name="dtab" id="dt1" value="table"><label for="dt1" id="dt1l">Classificação</label>
+    </div>
+    <div id="td-body"></div>
+    <div class="backup-row" id="td-actions">
+      <button class="btn btn-green" id="td-next" type="button" hidden>➕ Próxima rodada</button>
+      <button class="btn btn-secondary" id="td-end" type="button" hidden>🏁 Encerrar torneio</button>
+      <button class="btn btn-secondary" id="td-del" type="button">🗑 Excluir torneio</button>
+    </div>
+  </div>
+</main>
+
 <div class="side-alert" id="side-alert" role="alert">
   <div class="box">
     <div class="big"><span>🔄</span> TROCA DE LADO</div>
@@ -170,6 +223,18 @@
   <div class="opt col"><div><b>Tamanho do set</b><small>Vale para as próximas partidas avulsas</small></div>
     <div class="seg"><input type="radio" name="setsize" id="ss0" value="6"><label for="ss0">6 games (oficial)</label><input type="radio" name="setsize" id="ss1" value="4"><label for="ss1">4 games (curto)</label></div></div>
   <button class="btn btn-primary" id="set-close" type="button">Pronto</button>
+</dialog>
+
+<!-- Lançar resultado manualmente -->
+<dialog id="dlg-tres">
+  <h3>✏ Lançar placar</h3>
+  <p id="tr-note"></p>
+  <div class="edit-grid">
+    <div><label for="tr-a" id="tr-la">Dupla A</label><input id="tr-a" type="number" inputmode="numeric" min="0" /></div>
+    <div><label for="tr-b" id="tr-lb">Dupla B</label><input id="tr-b" type="number" inputmode="numeric" min="0" /></div>
+  </div>
+  <button class="btn btn-primary" id="tr-ok" type="button">Salvar resultado</button>
+  <button class="btn btn-secondary" id="tr-cancel" type="button">Cancelar</button>
 </dialog>
 
 <!-- Foto do atleta -->
@@ -230,11 +295,13 @@
 </dialog>
 
 <script src="js/engine.js"></script>
+<script src="js/tourney-logic.js"></script>
 <script src="js/store.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/app.js"></script>
 <script src="js/share.js"></script>
 <script src="js/history.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/tourneys.js"></script>
 </body>
 </html>

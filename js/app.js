@@ -221,6 +221,7 @@ function renderRecord(rec) {
 }
 function renderFinal() {
   $("fin-actions").hidden = false; $("view-actions").hidden = true;
+  $("btn-new").textContent = tref ? "↩ Voltar ao torneio" : "🔄 Nova partida";
   renderRecord(buildRecord());
   updateSaveButton();
 }
@@ -228,7 +229,7 @@ function renderFinal() {
 function afterChange(info, quiet) {
   save();
   if ((S.finished || !needSecond()) && $("dlg-pick").open) $("dlg-pick").close();
-  if (S.finished) { if (!quiet && info) announce(info); renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); if (BTStore.getSettings().autoSave) saveCurrentMatch(true); return; }
+  if (S.finished) { if (!quiet && info) announce(info); renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); if (BTStore.getSettings().autoSave || tref) saveCurrentMatch(true); return; }
   showScreen("game");
   render();
   if (!quiet && navigator.vibrate) navigator.vibrate(18);
@@ -415,6 +416,7 @@ function boot() {
   else { showScreen("game"); render(); if (needSecond()) openPick(); }
 }
 function goSetup() {
+  const back = tref;
   safe(() => localStorage.removeItem(KEY));
   M = null; S = null; T = null; savedId = null; tref = null;
   clearInterval(ticker); hideAlert(); releaseWake();
@@ -422,6 +424,7 @@ function goSetup() {
   const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
   buildSetup(cfg && cfg.names ? cfg : { names: [["", ""], ["", ""]], first: [0, 0] });
   refreshAthleteList();
+  if (back) { openTourneyDetail(back.id); return; }
   showScreen("setup");
 }
 function confirmDialog(title, text, ok, fn) {
@@ -467,13 +470,15 @@ $("btn-start").addEventListener("click", () => {
   safe(() => localStorage.setItem(KEY_CFG, JSON.stringify(cfg)));
   startMatch(cfg, setupPhotos);
 });
-$("btn-resume").addEventListener("click", () => {
-  const d = loadSaved(); if (!d) return;
+function resumeSaved() {
+  const d = loadSaved(); if (!d) return false;
   M = { S: d.S, undo: d.undo || [], G: d.G || [] }; S = M.S; T = d.T; P = d.P; savedId = d.savedId || null; tref = d.tref || null;
   if (!T.startedAt) T.startedAt = new Date().toISOString();
   if (T.runStart) { T.base += Math.max(0, (d.savedAt || Date.now()) - T.runStart); T.runStart = Date.now(); }  // não conta o app fechado
   boot();
-});
+  return true;
+}
+$("btn-resume").addEventListener("click", resumeSaved);
 
 document.addEventListener("keydown", (e) => {
   if (!S || S.finished || !$("game").classList.contains("active") || document.querySelector("dialog[open]")) return;

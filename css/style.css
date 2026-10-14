@@ -218,3 +218,30 @@ dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted);
 .point-btn { position: relative; overflow: hidden; }
 .point-btn.holding::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.45); transform-origin: left; animation: holdfill var(--hold, .5s) linear forwards; }
 @keyframes holdfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ---------- Torneios ---------- */
+#tourneys, #tnew, #tdetail { align-items: flex-start; justify-content: center; padding: 18px; overflow-y: auto; }
+.seg.wrap { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
+.help { color: var(--muted); font-size: .85rem; line-height: 1.45; margin: 10px 2px 4px; }
+.txt { width: 100%; padding: 12px 14px; font-size: 1rem; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; outline: none; user-select: text; -webkit-user-select: text; margin: 6px 0; resize: vertical; }
+.txt:focus { border-color: var(--sand); }
+textarea.txt { text-transform: uppercase; font-family: inherit; }
+.t-card { display: block; width: 100%; text-align: left; background: rgba(0,0,0,.22); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; border-left: 4px solid var(--sand); }
+.t-card:hover { background: rgba(0,0,0,.32); }
+.t-card .nm { font-weight: 800; font-size: 1rem; }
+.t-card .sub { color: var(--muted); font-size: .78rem; margin-top: 3px; }
+.t-round { margin: 16px 0 6px; font-size: .78rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--sand); }
+.t-match { background: rgba(0,0,0,.22); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; }
+.t-match .row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; font-size: .82rem; font-weight: 800; text-transform: uppercase; }
+.t-match .row .r { text-align: right; }
+.t-match .row .w { color: var(--sand); }
+.t-match .row .sc { font-size: 1.25rem; white-space: nowrap; color: var(--muted); }
+.t-match .row .tbd { color: var(--muted); font-style: italic; text-transform: none; font-weight: 600; }
+.t-match .acts { display: flex; gap: 8px; margin-top: 8px; }
+.t-match .acts button { flex: 1; padding: 9px 6px; border-radius: 10px; font-weight: 800; font-size: .82rem; background: rgba(255,255,255,.1); }
+.t-match .acts button.go { background: var(--green); color: #05281a; }
+.t-match .note { margin-top: 6px; color: var(--muted); font-size: .75rem; }
+.podium { background: rgba(242,200,121,.14); border: 1px solid rgba(242,200,121,.45); border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; text-align: center; font-weight: 800; line-height: 1.7; text-transform: uppercase; font-size: .9rem; }
+.podium .big { color: var(--sand); font-size: 1.1rem; }
+#td-actions { grid-template-columns: 1fr; }
+#td-actions .btn { margin-top: 0; }

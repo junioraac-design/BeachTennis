@@ -12,6 +12,8 @@ const KEY = "beachtennis:v3", KEY_PHOTOS = "beachtennis:photos", KEY_CFG = "beac
 const PT = E.PT;
 
 let M = null, S = null, P = [[null, null], [null, null]], T = null;
+let savedId = null;      // id da partida no histórico (se já foi salva)
+let tref = null;         // vínculo com torneio: { id, matchId }
 let ticker = null, wakeLock = null, lastTap = 0, alertTimer = null;
 const setupPhotos = [[null, null], [null, null]];
 
@@ -22,7 +24,7 @@ const safe = (fn) => { try { return fn(); } catch (_) { return undefined; } };
 /* ---------------- Persistência ---------------- */
 function save() {
   if (!M) return;
-  safe(() => localStorage.setItem(KEY, JSON.stringify({ S: M.S, undo: M.undo, G: M.G, T, savedAt: Date.now() })));
+  safe(() => localStorage.setItem(KEY, JSON.stringify({ S: M.S, undo: M.undo, G: M.G, T, savedId, tref, savedAt: Date.now() })));
   safe(() => localStorage.setItem(KEY_PHOTOS, JSON.stringify(P)));
 }
 function loadSaved() {
@@ -49,10 +51,11 @@ function renderTimer() {
 }
 
 /* ---------------- Partida ---------------- */
-function startMatch(cfg, photos) {
+function startMatch(cfg, photos, torneio) {
   M = E.create(cfg); S = M.S;
   P = clone(photos);
-  T = { base: 0, runStart: Date.now() };
+  T = { base: 0, runStart: Date.now(), startedAt: new Date().toISOString() };
+  savedId = null; tref = torneio || null;
   save();
   boot();
 }
@@ -73,14 +76,14 @@ function undoPoint() {
   const r = E.undoPoint(M);
   if (!r.ok) return toast(r.reason);
   S = M.S;
-  if (r.wasFinished) startClock();
+  if (r.wasFinished) { startClock(); discardSaved(); }
   afterChange(null, true);
 }
 function undoGame() {
   const r = E.undoGame(M);
   if (!r.ok) return toast(r.reason);
   S = M.S;
-  if (r.wasFinished) startClock();
+  if (r.wasFinished) { startClock(); discardSaved(); }
   afterChange(null, true);
 }
 function openEdit() {
@@ -96,7 +99,7 @@ function openEdit() {
 function applyEdit() {
   const r = E.applyEdit(M, [+$("e-g0").value, +$("e-g1").value], [$("e-p0").value, $("e-p1").value]);
   if (!r.ok) return toast(r.reason);
-  if (S.finished) stopClock();
+  if (S.finished) stopClock(); else if (savedId) discardSaved();
   $("dlg-edit").close();
   afterChange(null, true);
 }
@@ -181,22 +184,31 @@ function render() {
   renderTimer();
 }
 
-function renderFinal() {
-  const w = S.winner;
+/* Registro da partida (o que vai para o histórico e para o resumo final) */
+function buildRecord() {
+  return { id: savedId || undefined, date: T.startedAt, names: S.names, photos: P, winner: S.winner,
+    games: S.games.slice(), target: S.target, log: S.log, tbResult: S.tbResult, totalPoints: S.totalPoints,
+    duration: elapsedMs(), tournament: tref || undefined };
+}
+const joinRec = (rec, t) => `${rec.names[t][0]} e ${rec.names[t][1]}`;
+
+function renderRecord(rec) {
+  const w = rec.winner;
   const ph = $("f-photos");
   ph.textContent = "";
-  for (let i = 0; i < 2; i++) ph.appendChild(makePhoto(P[w][i], S.names[w][i]));
-  $("f-winner").textContent = joinNames(w);
-  $("f-score").innerHTML = w === 0 ? xScore(S.games[0], S.games[1]) : xScore(S.games[0], S.games[1]);
-  $("f-time").textContent = fmt(elapsedMs());
-  $("f-tb").hidden = !S.tbResult;
-  if (S.tbResult) {
-    const r = S.tbResult;
-    $("f-tb-text").textContent = `${joinNames(r.winner)} venceram: ${r.score[0]} x ${r.score[1]}`;
+  for (let i = 0; i < 2; i++) ph.appendChild(makePhoto(rec.photos && rec.photos[w] && rec.photos[w][i], rec.names[w][i]));
+  $("f-winner").textContent = joinRec(rec, w);
+  $("f-score").innerHTML = xScore(rec.games[0], rec.games[1]);
+  $("f-time").textContent = fmt(rec.duration);
+  $("f-date").textContent = rec.date ? new Date(rec.date).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" }) : "";
+  $("f-tb").hidden = !rec.tbResult;
+  if (rec.tbResult) {
+    const r = rec.tbResult;
+    $("f-tb-text").textContent = `${joinRec(rec, r.winner)} venceram: ${r.score[0]} x ${r.score[1]}`;
   }
   const log = $("f-log");
   log.textContent = "";
-  S.log.forEach((g) => {
+  rec.log.forEach((g) => {
     const row = document.createElement("div");
     row.className = "g-row w" + (g.winner + 1);
     const a = document.createElement("div"); a.className = "g"; a.textContent = `Game ${g.game}`;
@@ -207,10 +219,16 @@ function renderFinal() {
     log.appendChild(row);
   });
 }
+function renderFinal() {
+  $("fin-actions").hidden = false; $("view-actions").hidden = true;
+  renderRecord(buildRecord());
+  updateSaveButton();
+}
 
 function afterChange(info, quiet) {
   save();
-  if (S.finished) { renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); return; }
+  if ((S.finished || !needSecond()) && $("dlg-pick").open) $("dlg-pick").close();
+  if (S.finished) { renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); if (BTStore.getSettings().autoSave) saveCurrentMatch(true); return; }
   showScreen("game");
   render();
   if (!quiet && navigator.vibrate) navigator.vibrate(18);
@@ -353,6 +371,8 @@ function buildSetup(cfg) {
       const name = document.createElement("input");
       name.type = "text"; name.id = `n-${t}-${i}`; name.maxLength = 18; name.autocomplete = "off";
       name.placeholder = `Atleta ${t * 2 + i + 1}`; name.value = cfg.names[t][i] || "";
+      name.setAttribute("list", "athlete-names");
+      name.addEventListener("change", () => autofillPhoto(t, i));
       const lab = document.createElement("label");
       lab.className = "first-pick";
       const r = document.createElement("input");
@@ -364,13 +384,23 @@ function buildSetup(cfg) {
     }
   }
 }
+/* Se o nome já foi usado antes, reaproveita a foto guardada */
+function autofillPhoto(t, i) {
+  if (setupPhotos[t][i]) return;
+  const key = $(`n-${t}-${i}`).value.trim().replace(/\s+/g, " ").toUpperCase();
+  const a = BTStore.getAthletes()[key];
+  if (!a || !a.photo) return;
+  setupPhotos[t][i] = a.photo;
+  paintPhoto(photoEls[t][i], a.photo, ""); photoEls[t][i].classList.add("has");
+}
+
 function readSetup() {
   const names = [0, 1].map((t) => [0, 1].map((i) => {
     const v = $(`n-${t}-${i}`).value.trim().replace(/\s+/g, " ");
     return (v || `Atleta ${t * 2 + i + 1}`).toUpperCase();
   }));
   const [ft, fi] = document.querySelector('input[name="first"]:checked').value.split("-").map(Number);
-  return { names, first: [ft, fi] };
+  return { names, first: [ft, fi], target: BTStore.getSettings().setSize };
 }
 
 /* ---------------- Fluxo ---------------- */
@@ -385,11 +415,12 @@ function boot() {
 }
 function goSetup() {
   safe(() => localStorage.removeItem(KEY));
-  M = null; S = null; T = null;
+  M = null; S = null; T = null; savedId = null; tref = null;
   clearInterval(ticker); hideAlert(); releaseWake();
   $("resume-box").classList.remove("show");
   const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
   buildSetup(cfg && cfg.names ? cfg : { names: [["", ""], ["", ""]], first: [0, 0] });
+  refreshAthleteList();
   showScreen("setup");
 }
 function confirmDialog(title, text, ok, fn) {
@@ -437,7 +468,8 @@ $("btn-start").addEventListener("click", () => {
 });
 $("btn-resume").addEventListener("click", () => {
   const d = loadSaved(); if (!d) return;
-  M = { S: d.S, undo: d.undo || [], G: d.G || [] }; S = M.S; T = d.T; P = d.P;
+  M = { S: d.S, undo: d.undo || [], G: d.G || [] }; S = M.S; T = d.T; P = d.P; savedId = d.savedId || null; tref = d.tref || null;
+  if (!T.startedAt) T.startedAt = new Date().toISOString();
   if (T.runStart) { T.base += Math.max(0, (d.savedAt || Date.now()) - T.runStart); T.runStart = Date.now(); }  // não conta o app fechado
   boot();
 });

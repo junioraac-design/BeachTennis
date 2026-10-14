@@ -41,6 +41,10 @@
     <div class="field-label">🎾 Marque o atleta que fará o primeiro saque</div>
 
     <button class="btn btn-primary" id="btn-start" type="button">Começar partida</button>
+    <div class="menu-row">
+      <button class="btn btn-secondary" id="btn-history" type="button">📊 Histórico e ranking</button>
+    </div>
+    <datalist id="athlete-names"></datalist>
   </div>
 </main>
 
@@ -85,6 +89,7 @@
 <main id="final" class="screen">
   <div class="final-card">
     <h1>🏆 Vencedores</h1>
+    <div class="final-date" id="f-date"></div>
     <div class="winners" id="f-photos"></div>
     <div class="winner-name" id="f-winner"></div>
     <div class="lbl">Placar final</div>
@@ -98,8 +103,39 @@
       <h2>Resumo da partida</h2>
       <div id="f-log"></div>
     </div>
-    <button class="btn btn-secondary" id="btn-back" type="button">↶ Voltar e corrigir último ponto</button>
-    <button class="btn btn-primary" id="btn-new" type="button">🔄 Nova partida</button>
+    <div id="fin-actions">
+      <button class="btn btn-green" id="btn-save" type="button">💾 Salvar partida</button>
+      <button class="btn btn-secondary" id="btn-share" type="button">📤 Compartilhar resultado</button>
+      <button class="btn btn-secondary" id="btn-back" type="button">↶ Voltar e corrigir último ponto</button>
+      <button class="btn btn-primary" id="btn-new" type="button">🔄 Nova partida</button>
+    </div>
+    <div id="view-actions" hidden>
+      <button class="btn btn-secondary" id="btn-share2" type="button">📤 Compartilhar resultado</button>
+      <button class="btn btn-danger" id="btn-del" type="button">🗑 Excluir partida</button>
+      <button class="btn btn-primary" id="btn-view-back" type="button">← Voltar</button>
+    </div>
+  </div>
+</main>
+
+<!-- ============ HISTÓRICO E RANKING ============ -->
+<main id="history" class="screen">
+  <div class="setup-card">
+    <div class="hdr"><button class="back" id="hist-back" type="button">← Voltar</button><h1>Histórico e ranking</h1></div>
+    <div class="seg tabs">
+      <input type="radio" name="htab" id="ht0" value="matches" checked><label for="ht0">Partidas</label>
+      <input type="radio" name="htab" id="ht1" value="ranking"><label for="ht1">Ranking</label>
+      <input type="radio" name="htab" id="ht2" value="pairs"><label for="ht2">Duplas</label>
+    </div>
+    <div class="filter-row" id="hist-filter-row">
+      <label for="hist-filter">Mostrar</label>
+      <select id="hist-filter"><option value="all">Todas as partidas</option><option value="casual">Só avulsas</option><option value="tournament">Só torneios</option></select>
+    </div>
+    <div id="hist-body"></div>
+    <div class="backup-row">
+      <button class="btn btn-secondary" id="hist-export" type="button">⬇ Exportar backup</button>
+      <button class="btn btn-secondary" id="hist-import" type="button">⬆ Importar backup</button>
+      <input type="file" id="hist-file" accept="application/json,.json" hidden />
+    </div>
   </div>
 </main>
 
@@ -178,6 +214,10 @@
 </dialog>
 
 <script src="js/engine.js"></script>
+<script src="js/store.js"></script>
+<script src="js/stats.js"></script>
 <script src="js/app.js"></script>
+<script src="js/share.js"></script>
+<script src="js/history.js"></script>
 </body>
 </html>

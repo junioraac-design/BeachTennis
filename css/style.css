@@ -160,3 +160,43 @@ dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted);
 .toast { position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; background: var(--sand); color: #2a1d00; font-weight: 800; padding: 12px 20px; border-radius: 99px; box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: .25s; z-index: 40; text-align: center; max-width: 92vw; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* ---------- Histórico / ranking ---------- */
+#history { align-items: flex-start; justify-content: center; padding: 18px; overflow-y: auto; }
+.menu-row { display: grid; gap: 0; }
+.hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.hdr h1 { margin: 0; font-size: 1.25rem; flex: 1; text-align: center; padding-right: 74px; }
+.hdr .back { background: rgba(255,255,255,.1); border-radius: 10px; padding: 9px 12px; font-weight: 700; font-size: .9rem; }
+.tabs { margin-bottom: 12px; }
+.filter-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: .8rem; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.filter-row select { flex: 1; padding: 9px 10px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; color: var(--ink); font-size: .95rem; }
+.filter-row select option { color: #111; }
+.empty { text-align: center; color: var(--muted); padding: 26px 8px; line-height: 1.5; }
+.m-card { display: block; width: 100%; text-align: left; background: rgba(0,0,0,.22); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; border-left: 4px solid var(--sand); }
+.m-card:hover { background: rgba(0,0,0,.32); }
+.m-card .top { display: flex; justify-content: space-between; gap: 8px; font-size: .75rem; color: var(--muted); margin-bottom: 6px; }
+.m-card .teams { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; font-weight: 800; font-size: .85rem; text-transform: uppercase; }
+.m-card .teams .r { text-align: right; }
+.m-card .teams .w { color: var(--sand); }
+.m-card .teams .sc { font-size: 1.3rem; white-space: nowrap; }
+.badge { font-size: .65rem; font-weight: 800; letter-spacing: .08em; padding: 2px 8px; border-radius: 99px; background: rgba(242,200,121,.2); color: var(--sand); text-transform: uppercase; }
+.rank-row { display: grid; grid-template-columns: 30px 44px 1fr auto; gap: 10px; align-items: center; background: rgba(0,0,0,.2); border-radius: 12px; padding: 8px 12px; margin-bottom: 6px; }
+.rank-row.top1 { background: rgba(242,200,121,.16); }
+.rank-row .pos { font-weight: 900; font-size: 1.1rem; color: var(--sand); text-align: center; }
+.rank-row .photo { width: 44px; height: 44px; border-width: 2px; font-size: 1rem; }
+.rank-row .nm { font-weight: 800; text-transform: uppercase; font-size: .9rem; line-height: 1.2; }
+.rank-row .sub { font-size: .72rem; color: var(--muted); }
+.rank-row .big { text-align: right; font-weight: 900; font-size: 1.1rem; line-height: 1.1; }
+.rank-row .big small { display: block; font-weight: 600; font-size: .65rem; color: var(--muted); }
+.backup-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.backup-row .btn { margin-top: 0; padding: 11px 6px; font-size: .85rem; }
+.final-date { color: var(--muted); font-size: .85rem; margin-top: 4px; }
+
+/* ---------- Seletor segmentado (abas e opções) ---------- */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; background: rgba(0,0,0,.25); padding: 5px; border-radius: 12px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { text-align: center; padding: 10px 6px; border-radius: 8px; font-size: .92rem; cursor: pointer; color: var(--muted); transition: .15s; }
+.seg input:checked + label { background: var(--sand); color: #2a1d00; font-weight: 700; }
+.seg input:focus-visible + label { outline: 2px solid #fff; }
+.hdr h1 { padding-right: 0; font-size: 1.15rem; }
+[hidden] { display: none !important; }

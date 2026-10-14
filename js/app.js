@@ -179,7 +179,7 @@ function render() {
   $("pts").innerHTML = sideScore(p);
   $("games").innerHTML = sideScore(S.games);
   placeTeams();
-  $("gamenum").textContent = tb ? "" : `Game ${gamesPlayed() + 1}`;
+  $("gamenum").textContent = (tb ? "" : `Game ${gamesPlayed() + 1}`) + (S.target !== 6 ? ` · set de ${S.target} games` : "");
   $("btn-pause").textContent = T.runStart ? "⏸ PAUSAR" : "▶ RETOMAR";
   renderTimer();
 }
@@ -228,21 +228,22 @@ function renderFinal() {
 function afterChange(info, quiet) {
   save();
   if ((S.finished || !needSecond()) && $("dlg-pick").open) $("dlg-pick").close();
-  if (S.finished) { renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); if (BTStore.getSettings().autoSave) saveCurrentMatch(true); return; }
+  if (S.finished) { if (!quiet && info) announce(info); renderFinal(); showScreen("final"); releaseWake(); hideAlert(); $("toast").classList.remove("show"); if (BTStore.getSettings().autoSave) saveCurrentMatch(true); return; }
   showScreen("game");
   render();
   if (!quiet && navigator.vibrate) navigator.vibrate(18);
+  if (!quiet && info) announce(info);
   if (needSecond()) { openPick(info && info.side); return; }
   if (info && info.tb) toast("TIE-BREAK! Diferença mínima de 2 pontos");
-  if (info && info.side) showAlert(info.side + " — nomes e placar trocam de lado");
+  if (info && info.side) sideNotice(info.side);
 }
 
 function showScreen(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id)); applyLayout(); }
 
 let toastTimer;
-function toast(msg) {
+function toast(msg, ms) {
   $("toast").textContent = msg; $("toast").classList.add("show");
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => $("toast").classList.remove("show"), 3200);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => $("toast").classList.remove("show"), ms || 3200);
 }
 function showAlert(sub) {
   $("side-sub").textContent = sub || "";
@@ -261,7 +262,7 @@ function openPick(sideNote) {
     const b = document.createElement("button");
     b.type = "button"; b.className = "pick-btn";
     b.append(makePhoto(P[t][i], S.names[t][i]), document.createTextNode(S.names[t][i]));
-    b.addEventListener("click", () => { S.second = i; $("dlg-pick").close(); save(); render(); if (sideNote) showAlert(sideNote + " — nomes e placar trocam de lado"); });
+    b.addEventListener("click", () => { S.second = i; $("dlg-pick").close(); save(); render(); if (sideNote) sideNotice(sideNote); });
     row.appendChild(b);
   }
   if (!$("dlg-pick").open) $("dlg-pick").showModal();

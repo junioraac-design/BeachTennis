@@ -86,7 +86,7 @@
     if (g[0] === T && g[1] === T) {
       S.tb = true; S.tbPts = [0, 0];
       M.G.push({ s: clone(S), u: M.undo.length });
-      return { tb: true };
+      return { tb: true, game: n };
     }
     M.G.push({ s: clone(S), u: M.undo.length });
     if (n % 2 === 1) { S.swapped = !S.swapped; return { side: `Final do Game ${n}`, game: n }; }

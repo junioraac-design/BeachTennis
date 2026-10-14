@@ -50,6 +50,11 @@
   </div>
 </main>
 
+<!-- ============ AGUARDANDO (TV) ============ -->
+<main id="tvwait" class="screen">
+  <div class="tvwait-box"><div class="ball-big">🎾</div><h1>Aguardando partida…</h1><p>Código: <b id="tv-code"></b></p></div>
+</main>
+
 <!-- ============ PARTIDA ============ -->
 <main id="game" class="screen">
   <div class="topbar">
@@ -222,6 +227,12 @@
     <div class="seg"><input type="radio" name="sidealert" id="sa0" value="full"><label for="sa0">Tela cheia</label><input type="radio" name="sidealert" id="sa1" value="banner"><label for="sa1">Faixa discreta</label></div></div>
   <div class="opt col"><div><b>Tamanho do set</b><small>Vale para as próximas partidas avulsas</small></div>
     <div class="seg"><input type="radio" name="setsize" id="ss0" value="6"><label for="ss0">6 games (oficial)</label><input type="radio" name="setsize" id="ss1" value="4"><label for="ss1">4 games (curto)</label></div></div>
+  <div class="opt"><div><b>📺 Transmitir para a TV</b><small>A TV mostra o placar ao vivo; você marca os pontos no celular</small></div><label class="sw"><input type="checkbox" id="s-tvon"><span></span></label></div>
+  <div id="tv-box" hidden>
+    <small class="tvhelp">Na <b>mesma tela/aparelho</b> funciona direto (abra o link em outra aba ou janela). Para outro aparelho, cole abaixo o endereço do seu banco <b>Firebase Realtime Database</b> (veja o README).</small>
+    <input type="url" id="s-tvdb" class="txt" placeholder="https://seu-projeto-default-rtdb.firebaseio.com" />
+    <div class="backup-row"><button class="btn btn-secondary" id="tv-open" type="button">📺 Abrir TV</button><button class="btn btn-secondary" id="tv-copy" type="button">🔗 Copiar link</button></div>
+  </div>
   <button class="btn btn-primary" id="set-close" type="button">Pronto</button>
 </dialog>
 
@@ -303,5 +314,6 @@
 <script src="js/history.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/tourneys.js"></script>
+<script src="js/sync.js"></script>
 </body>
 </html>

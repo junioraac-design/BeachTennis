@@ -11,7 +11,10 @@
     sound: false,          // bipes ao marcar ponto
     voice: false,          // placar falado
     hold: false,           // segurar para marcar ponto
-    sideAlert: "full"      // "full" = tela cheia, "banner" = faixa discreta
+    sideAlert: "full",     // "full" = tela cheia, "banner" = faixa discreta
+    tvOn: false,           // transmitir o placar para a TV
+    tvDb: "",              // endereço do Firebase Realtime Database (opcional)
+    tvCode: ""             // código da sala (gerado automaticamente)
   };
 
   function read(key, fallback) {

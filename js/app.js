@@ -26,6 +26,7 @@ function save() {
   if (!M) return;
   safe(() => localStorage.setItem(KEY, JSON.stringify({ S: M.S, undo: M.undo, G: M.G, T, savedId, tref, savedAt: Date.now() })));
   safe(() => localStorage.setItem(KEY_PHOTOS, JSON.stringify(P)));
+  if (typeof syncPush === "function") syncPush();
 }
 function loadSaved() {
   return safe(() => {
@@ -424,6 +425,7 @@ function goSetup() {
   const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
   buildSetup(cfg && cfg.names ? cfg : { names: [["", ""], ["", ""]], first: [0, 0] });
   refreshAthleteList();
+  if (typeof syncIdle === "function") syncIdle();
   if (back) { openTourneyDetail(back.id); return; }
   showScreen("setup");
 }

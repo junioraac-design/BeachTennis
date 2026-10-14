@@ -1,0 +1,6 @@
+{
+  "name": "beach-tennis-score",
+  "private": true,
+  "description": "Placar de Beach Tennis para duplas",
+  "scripts": { "test": "node --test tests/*.test.js" }
+}

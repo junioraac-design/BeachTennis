@@ -399,6 +399,7 @@ function newState(cfg) {
     second: null,                // atleta da dupla adversária que saca o Game 2
     games: [0, 0], points: [0, 0],
     tb: false, tbPts: [0, 0], tbResult: null,
+    swapped: false,              // true = duplas trocaram de lado (Dupla 2 aparece à esquerda)
     log: [],                     // { game, winner, loserScore }
     totalPoints: [0, 0],
     finished: false, winner: -1
@@ -464,7 +465,8 @@ function gameWon(t, loserScore) {
   if (g[t] >= 6 && g[t] - g[o] >= 2 && g[t] <= 7 || g[t] === 7) return finishSet(t);
   if (g[0] === 6 && g[1] === 6) { S.tb = true; S.tbPts = [0, 0]; G.push({ s: clone(S), u: undoStack.length }); return { tb: true }; }
   G.push({ s: clone(S), u: undoStack.length });
-  return n % 2 === 1 ? { side: `Final do Game ${n}` } : null;
+  if (n % 2 === 1) { S.swapped = !S.swapped; return { side: `Final do Game ${n}` }; }
+  return null;
 }
 
 function tiebreakPoint(t) {
@@ -476,7 +478,8 @@ function tiebreakPoint(t) {
     S.games[t] = 7;
     return finishSet(t);
   }
-  return total % 4 === 1 ? { side: `Tie-Break: ${total} ${total === 1 ? "ponto" : "pontos"}` } : null;
+  if (total % 4 === 1) { S.swapped = !S.swapped; return { side: `Tie-Break: ${total} ${total === 1 ? "ponto" : "pontos"}` }; }
+  return null;
 }
 
 function finishSet(t) {
@@ -548,6 +551,7 @@ function applyEdit() {
   S.games = g;
   if (inGame) S.tbPts = pts; else S.points = pts;
   recheckEnd();
+  S.swapped = (gamesPlayed() + (S.tb ? Math.ceil((S.tbPts[0] + S.tbPts[1]) / 4) : 0)) % 2 === 1;
   // após edição, o histórico por game deixa de ser reversível além deste ponto
   const u = units();
   G = Array(u).fill(null); G.push({ s: clone(S), u: undoStack.length });
@@ -590,8 +594,14 @@ function renderTiles() {
   }
 }
 
-function xScore(a, b, cls) {
+function xScore(a, b) {
   return `<span class="c1">${a}</span><span class="x"> x </span><span class="c2">${b}</span>`;
+}
+/* Placar na ordem em que as duplas aparecem na tela (esquerda x direita) */
+function sideScore(v) {
+  return S.swapped
+    ? `<span class="c2">${v[1]}</span><span class="x"> x </span><span class="c1">${v[0]}</span>`
+    : xScore(v[0], v[1]);
 }
 function render() {
   renderTiles();
@@ -599,8 +609,10 @@ function render() {
   $("lbl-pts").textContent = tb ? "Tie-Break" : (S.points[0] === 3 && S.points[1] === 3 ? "Ponto de ouro" : "Pontos");
   $("lbl-pts").classList.toggle("hot", tb || (S.points[0] === 3 && S.points[1] === 3));
   const p = tb ? S.tbPts : S.points.map((v) => PT[Math.min(v, 3)]);
-  $("pts").innerHTML = xScore(p[0], p[1]);
-  $("games").innerHTML = xScore(S.games[0], S.games[1]);
+  $("pts").innerHTML = sideScore(p);
+  $("games").innerHTML = sideScore(S.games);
+  // cada dupla ocupa o lado em que está na quadra
+  for (const t of [0, 1]) $("team-" + t).style.gridArea = (t === 0) !== S.swapped ? "t1" : "t2";
   $("gamenum").textContent = tb ? "" : `Game ${gamesPlayed() + 1}`;
   $("btn-pause").textContent = T.runStart ? "⏸ PAUSAR" : "▶ RETOMAR";
   renderTimer();
@@ -641,7 +653,7 @@ function afterChange(info, quiet) {
   if (!quiet && navigator.vibrate) navigator.vibrate(18);
   if (needSecond()) { openPick(info && info.side); return; }
   if (info && info.tb) toast("TIE-BREAK! Diferença mínima de 2 pontos");
-  if (info && info.side) showAlert(info.side);
+  if (info && info.side) showAlert(info.side + " — nomes e placar trocam de lado");
 }
 
 function showScreen(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id)); applyLayout(); }
@@ -668,7 +680,7 @@ function openPick(sideNote) {
     const b = document.createElement("button");
     b.type = "button"; b.className = "pick-btn";
     b.append(makePhoto(P[t][i], S.names[t][i]), document.createTextNode(S.names[t][i]));
-    b.addEventListener("click", () => { S.second = i; $("dlg-pick").close(); save(); render(); if (sideNote) showAlert(sideNote); });
+    b.addEventListener("click", () => { S.second = i; $("dlg-pick").close(); save(); render(); if (sideNote) showAlert(sideNote + " — nomes e placar trocam de lado"); });
     row.appendChild(b);
   }
   if (!$("dlg-pick").open) $("dlg-pick").showModal();

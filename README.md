@@ -6,7 +6,7 @@ Placar de duplas em um único arquivo (`index.html`), sem dependências. Funcion
 - **Saque:** o sistema pergunta quem saca o Game 2 e depois segue a sequência sozinho (A1 → B1 → A2 → B2…). Sacador com borda verde e 🎾
 - **Pontuação:** 0, 15, 30, 40; em 40x40 o próximo ponto decide (sem vantagem)
 - **Games:** 6x0 a 6x4, 7x5, tie-break em 6x6 (sem limite, diferença mínima de 2)
-- **Troca de lado:** aviso 🔄 após cada game ímpar e, no tie-break, após 1, 5, 9, 13… pontos
+- **Troca de lado:** aviso 🔄 após cada game ímpar e, no tie-break, após 1, 5, 9, 13… pontos; nomes, fotos e placar trocam de lado na tela, como nas transmissões de TV
 - **⚙ Corrigir:** desfazer último ponto, desfazer último game, editar games/pontos
 - **⟳ Girar tela:** botão no canto do placar (Automático, Horizontal, Horizontal invertido, Vertical); trava a orientação do aparelho ou, se não for possível (ex.: iPhone), gira o layout
 - **🔄 Reiniciar partida:** volta à tela inicial

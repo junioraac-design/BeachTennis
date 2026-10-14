@@ -1,5 +1,5 @@
 // Cache simples para funcionar offline. Aumente a versão ao publicar mudanças.
-const CACHE = "beachtennis-v2";
+const CACHE = "beachtennis-v3";
 const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-maskable.png"];
 
 self.addEventListener("install", (e) => {

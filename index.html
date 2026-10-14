@@ -85,7 +85,7 @@ button { cursor: pointer; border: 0; }
 .icon-btn { position: absolute; right: 12px; top: max(8px, env(safe-area-inset-top)); width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1); font-size: 1.1rem; }
 
 .stage { flex: 1; min-height: 0; display: grid; gap: 12px; padding: 8px 12px 10px; grid-template-columns: 1fr 1.1fr 1fr; grid-template-areas: "t1 center t2"; }
-@media (orientation: portrait) { .stage { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; grid-template-areas: "center center" "t1 t2"; } }
+#game.portrait .stage { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; grid-template-areas: "center center" "t1 t2"; }
 .team-card { grid-area: var(--area); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; min-height: 0; box-shadow: inset 0 0 0 2px rgba(255,255,255,.1), 0 10px 24px rgba(0,0,0,.3); }
 .team-card.t1 { --area: t1; background: linear-gradient(160deg, var(--t1), var(--t1-dark)); }
 .team-card.t2 { --area: t2; background: linear-gradient(160deg, var(--t2), var(--t2-dark)); }
@@ -95,7 +95,8 @@ button { cursor: pointer; border: 0; }
 .tile .photo { width: clamp(58px, 17vmin, 190px); height: clamp(58px, 17vmin, 190px); font-size: clamp(1.4rem, 5vmin, 4rem); }
 .tile .nm { font-weight: 800; text-transform: uppercase; text-align: center; font-size: clamp(.78rem, 2.3vmin, 1.5rem); line-height: 1.15; word-break: break-word; max-width: 100%; }
 .tile .nm.srv { color: var(--sand); }
-@media (orientation: portrait) { .tiles { flex-direction: column; gap: 6px; } .tile .photo { width: clamp(56px, 22vw, 130px); height: clamp(56px, 22vw, 130px); } }
+#game.portrait .tiles { flex-direction: column; gap: 6px; }
+#game.portrait .tile .photo { width: clamp(56px, 22vmin, 130px); height: clamp(56px, 22vmin, 130px); }
 .point-btn { width: 100%; padding: clamp(14px, 3.4vmin, 34px) 8px; border-radius: 14px; background: rgba(255,255,255,.2); color: #fff; font-weight: 900; letter-spacing: .08em; font-size: clamp(1rem, 3vmin, 2rem); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); touch-action: manipulation; }
 .point-btn:hover { background: rgba(255,255,255,.3); } .point-btn:active { transform: scale(.97); background: rgba(255,255,255,.4); }
 
@@ -108,11 +109,24 @@ button { cursor: pointer; border: 0; }
 .pts .x, .games .x { color: var(--muted); font-weight: 600; font-size: .6em; padding: 0 .2em; }
 .c1 { color: #7fd3f5; } .c2 { color: #ff9c85; }
 .gamenum { font-size: clamp(.75rem, 2vmin, 1.1rem); color: var(--muted); }
-@media (orientation: portrait) { .pts { font-size: clamp(3rem, 17vw, 7rem); } .games { font-size: clamp(2rem, 11vw, 4.5rem); } }
+#game.portrait .pts { font-size: clamp(3rem, 17vmin, 7rem); }
+#game.portrait .games { font-size: clamp(2rem, 11vmin, 4.5rem); }
 
 .controls { display: flex; gap: 10px; padding: 0 12px calc(12px + var(--safe-b)); }
 .controls button { flex: 1; padding: 13px 8px; border-radius: 14px; background: rgba(255,255,255,.1); font-weight: 800; font-size: clamp(.8rem, 2.2vmin, 1.2rem); }
 .controls button:hover { background: rgba(255,255,255,.18); }
+
+.topbar .icon-btn.left { right: auto; left: 12px; }
+/* Giro por CSS: usado quando o navegador não permite travar a orientação */
+#game.rotated { position: fixed; top: 0; left: 0; width: 100dvh; height: 100dvw; transform-origin: top left; transform: translateX(100dvw) rotate(90deg); z-index: 5; }
+#game.rotated.ccw { transform: translateY(100dvh) rotate(-90deg); }
+html.rot dialog { transform: rotate(90deg); max-width: min(92dvh, 420px); max-height: 92dvw; }
+html.rot.ccw dialog { transform: rotate(-90deg); }
+html.rot .side-alert .box { transform: rotate(90deg); }
+html.rot.ccw .side-alert .box { transform: rotate(-90deg); }
+html.rot .toast { bottom: auto; top: 50%; left: 96px; transform: translate(-50%, -50%) rotate(90deg); max-width: 80dvh; }
+html.rot.ccw .toast { left: auto; right: 96px; transform: translate(50%, -50%) rotate(-90deg); }
+html.rot .toast:not(.show) { opacity: 0; }
 
 /* ---------- Alerta de troca de lado ---------- */
 .side-alert { position: fixed; inset: 0; z-index: 30; display: none; place-items: center; background: rgba(5,15,28,.82); backdrop-filter: blur(4px); cursor: pointer; }
@@ -197,6 +211,7 @@ dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted);
 <main id="game" class="screen">
   <div class="topbar">
     <div class="timer num" id="timer">00:00:00</div>
+    <button class="icon-btn left" id="btn-rot" type="button" aria-label="Girar tela" title="Girar tela">⟳</button>
     <button class="icon-btn" id="btn-fs" type="button" aria-label="Tela cheia" title="Tela cheia">⛶</button>
   </div>
 
@@ -266,6 +281,29 @@ dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted);
   <h3>🎾 Quem saca o Game 2?</h3>
   <p id="pick-note"></p>
   <div class="pick-row" id="pick-row"></div>
+</dialog>
+
+<!-- Foto do atleta -->
+<dialog id="dlg-photo">
+  <h3 id="ph-title">Foto do atleta</h3>
+  <p>Como deseja adicionar a foto?</p>
+  <button class="btn btn-primary" id="ph-cam" type="button" style="margin-top:0">📷 Tirar foto agora</button>
+  <button class="btn btn-secondary" id="ph-gal" type="button">🖼 Escolher da galeria</button>
+  <button class="btn btn-secondary" id="ph-del" type="button">🗑 Remover foto</button>
+  <button class="btn btn-secondary" id="ph-cancel" type="button">Cancelar</button>
+</dialog>
+<input type="file" id="file-cam" accept="image/*" capture="user" hidden />
+<input type="file" id="file-gal" accept="image/*" hidden />
+
+<!-- Girar tela -->
+<dialog id="dlg-rot">
+  <h3>⟳ Girar tela</h3>
+  <p>Escolha a posição do placar.</p>
+  <button class="btn btn-secondary rot-opt" data-mode="auto" type="button" style="margin-top:0">🔓 Automático (segue o aparelho)</button>
+  <button class="btn btn-secondary rot-opt" data-mode="land" type="button">↔ Horizontal</button>
+  <button class="btn btn-secondary rot-opt" data-mode="land-flip" type="button">↔ Horizontal (invertido)</button>
+  <button class="btn btn-secondary rot-opt" data-mode="port" type="button">↕ Vertical</button>
+  <button class="btn btn-secondary" id="rot-close" type="button">Voltar</button>
 </dialog>
 
 <!-- Corrigir -->
@@ -606,7 +644,7 @@ function afterChange(info, quiet) {
   if (info && info.side) showAlert(info.side);
 }
 
-function showScreen(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id)); }
+function showScreen(id) { document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id)); applyLayout(); }
 
 let toastTimer;
 function toast(msg) {
@@ -637,6 +675,39 @@ function openPick(sideNote) {
 }
 $("dlg-pick").addEventListener("cancel", (e) => e.preventDefault());
 
+/* ---------------- Girar tela ---------------- */
+const KEY_ROT = "beachtennis:rotation";
+let rotMode = safe(() => localStorage.getItem(KEY_ROT)) || "auto";   // auto | land | land-flip | port
+
+function applyLayout() {
+  const g = $("game");
+  const physPortrait = window.innerHeight > window.innerWidth;
+  const want = rotMode === "port" ? "portrait" : rotMode === "auto" ? (physPortrait ? "portrait" : "landscape") : "landscape";
+  const rotated = (want === "portrait") !== physPortrait;
+  const ccw = rotated && rotMode === "land-flip";
+  const onGame = g.classList.contains("active");   // diálogos só giram junto com a tela do jogo
+  g.classList.toggle("portrait", want === "portrait");
+  g.classList.toggle("rotated", rotated);
+  g.classList.toggle("ccw", ccw);
+  document.documentElement.classList.toggle("rot", rotated && onGame);
+  document.documentElement.classList.toggle("ccw", ccw && onGame);
+}
+
+async function setRotation(mode) {
+  rotMode = mode;
+  safe(() => localStorage.setItem(KEY_ROT, mode));
+  const o = screen.orientation;
+  try {
+    if (mode === "auto") o && o.unlock && o.unlock();
+    else if (o && o.lock) {
+      if (!document.fullscreenElement && !matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) await document.documentElement.requestFullscreen?.();
+      await o.lock(mode === "port" ? "portrait" : mode === "land-flip" ? "landscape-secondary" : "landscape");
+    }
+  } catch (_) { /* sem suporte: o giro por CSS (applyLayout) cuida disso */ }
+  applyLayout();
+  setTimeout(applyLayout, 300);
+}
+
 /* ---------------- Wake lock / tela cheia ---------------- */
 async function requestWake() {
   try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => (wakeLock = null)); } } catch (_) {}
@@ -660,6 +731,36 @@ function resizeImage(file, size = 240) {
   });
 }
 
+const photoEls = [[null, null], [null, null]];
+let photoTarget = null;
+
+function openPhotoDialog(t, i) {
+  photoTarget = [t, i];
+  const nm = ($(`n-${t}-${i}`).value || `Atleta ${t * 2 + i + 1}`).toUpperCase();
+  $("ph-title").textContent = `Foto de ${nm}`;
+  $("ph-del").hidden = !setupPhotos[t][i];
+  $("dlg-photo").showModal();
+}
+async function onPhotoPicked(input) {
+  const f = input.files[0];
+  input.value = "";
+  if (!f || !photoTarget) return;
+  const [t, i] = photoTarget;
+  try {
+    setupPhotos[t][i] = await resizeImage(f);
+    const ph = photoEls[t][i];
+    paintPhoto(ph, setupPhotos[t][i], "");
+    ph.classList.add("has");
+  } catch (_) { toast("Não foi possível ler a imagem"); }
+}
+function removePhoto() {
+  const [t, i] = photoTarget;
+  setupPhotos[t][i] = null;
+  const ph = photoEls[t][i];
+  paintPhoto(ph, null, "");
+  ph.textContent = "📷"; ph.classList.remove("has");
+}
+
 function buildSetup(cfg) {
   for (const t of [0, 1]) {
     const box = $("ath-" + t);
@@ -668,19 +769,12 @@ function buildSetup(cfg) {
       const card = document.createElement("div");
       card.className = "athlete-card";
       const ph = makePhoto(setupPhotos[t][i], cfg.names[t][i] || "?", setupPhotos[t][i] ? "has" : "");
-      ph.title = "Toque para adicionar foto";
+      photoEls[t][i] = ph;
+      ph.title = "Adicionar foto";
       ph.setAttribute("role", "button"); ph.tabIndex = 0;
       if (!setupPhotos[t][i]) ph.textContent = "📷";
-      const file = document.createElement("input");
-      file.type = "file"; file.accept = "image/*"; file.hidden = true;
-      const pick = () => file.click();
-      ph.addEventListener("click", pick);
-      ph.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
-      file.addEventListener("change", async () => {
-        if (!file.files[0]) return;
-        try { setupPhotos[t][i] = await resizeImage(file.files[0]); paintPhoto(ph, setupPhotos[t][i], ""); ph.classList.add("has"); }
-        catch (_) { toast("Não foi possível ler a imagem"); }
-      });
+      ph.addEventListener("click", () => openPhotoDialog(t, i));
+      ph.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPhotoDialog(t, i); } });
       const name = document.createElement("input");
       name.type = "text"; name.id = `n-${t}-${i}`; name.maxLength = 18; name.autocomplete = "off";
       name.placeholder = `Atleta ${t * 2 + i + 1}`; name.value = cfg.names[t][i] || "";
@@ -690,7 +784,7 @@ function buildSetup(cfg) {
       r.type = "radio"; r.name = "first"; r.value = `${t}-${i}`;
       r.checked = cfg.first[0] === t && cfg.first[1] === i;
       lab.append(r, document.createTextNode("🎾 Saca primeiro"));
-      card.append(ph, file, name, lab);
+      card.append(ph, name, lab);
       box.appendChild(card);
     }
   }
@@ -739,6 +833,17 @@ function confirmDialog(title, text, ok, fn) {
 $("side-alert").addEventListener("click", hideAlert);
 $("btn-pause").addEventListener("click", () => { T.runStart ? stopClock() : startClock(); save(); render(); });
 $("btn-fs").addEventListener("click", toggleFs);
+$("btn-rot").addEventListener("click", () => $("dlg-rot").showModal());
+$("rot-close").addEventListener("click", () => $("dlg-rot").close());
+document.querySelectorAll(".rot-opt").forEach((b) => b.addEventListener("click", () => { $("dlg-rot").close(); setRotation(b.dataset.mode); }));
+window.addEventListener("resize", applyLayout);
+window.addEventListener("orientationchange", () => setTimeout(applyLayout, 200));
+$("ph-cam").addEventListener("click", () => { $("dlg-photo").close(); $("file-cam").click(); });
+$("ph-gal").addEventListener("click", () => { $("dlg-photo").close(); $("file-gal").click(); });
+$("ph-del").addEventListener("click", () => { $("dlg-photo").close(); removePhoto(); });
+$("ph-cancel").addEventListener("click", () => $("dlg-photo").close());
+$("file-cam").addEventListener("change", (e) => onPhotoPicked(e.target));
+$("file-gal").addEventListener("change", (e) => onPhotoPicked(e.target));
 $("btn-fix").addEventListener("click", () => $("dlg-fix").showModal());
 $("fx-close").addEventListener("click", () => $("dlg-fix").close());
 $("fx-point").addEventListener("click", () => { $("dlg-fix").close(); undoPoint(); });
@@ -778,6 +883,7 @@ window.addEventListener("pagehide", () => { if (S) save(); });
 
 /* ---------------- Inicialização ---------------- */
 (function init() {
+  applyLayout();
   const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
   buildSetup(cfg && cfg.names ? cfg : { names: [["", ""], ["", ""]], first: [0, 0] });
   const d = loadSaved();

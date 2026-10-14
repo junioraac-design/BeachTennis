@@ -603,6 +603,28 @@ function sideScore(v) {
     ? `<span class="c2">${v[1]}</span><span class="x"> x </span><span class="c1">${v[0]}</span>`
     : xScore(v[0], v[1]);
 }
+/* Cada dupla ocupa o lado em que está na quadra; ao trocar, desliza até o novo lado */
+let lastSwapped = null;
+function placeTeams() {
+  const cards = [$("team-0"), $("team-1")];
+  const animate = lastSwapped !== null && lastSwapped !== S.swapped && $("game").classList.contains("active") &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const before = cards.map((c) => [c.offsetLeft, c.offsetTop]);
+  cards.forEach((c, t) => { c.style.gridArea = (t === 0) !== S.swapped ? "t1" : "t2"; });
+  if (animate) {
+    cards.forEach((c, t) => {
+      const dx = before[t][0] - c.offsetLeft, dy = before[t][1] - c.offsetTop;
+      if (!dx && !dy) return;
+      c.animate([{ transform: `translate(${dx}px, ${dy}px)`, zIndex: 2 }, { transform: "none", zIndex: 2 }],
+        { duration: 650, easing: "cubic-bezier(.2,.8,.2,1)" });
+    });
+    for (const id of ["pts", "games"]) {
+      $(id).animate([{ opacity: 0, transform: "scale(.8)" }, { opacity: 1, transform: "none" }], { duration: 450, easing: "ease-out" });
+    }
+  }
+  lastSwapped = S.swapped;
+}
+
 function render() {
   renderTiles();
   const tb = S.tb;
@@ -611,8 +633,7 @@ function render() {
   const p = tb ? S.tbPts : S.points.map((v) => PT[Math.min(v, 3)]);
   $("pts").innerHTML = sideScore(p);
   $("games").innerHTML = sideScore(S.games);
-  // cada dupla ocupa o lado em que está na quadra
-  for (const t of [0, 1]) $("team-" + t).style.gridArea = (t === 0) !== S.swapped ? "t1" : "t2";
+  placeTeams();
   $("gamenum").textContent = tb ? "" : `Game ${gamesPlayed() + 1}`;
   $("btn-pause").textContent = T.runStart ? "⏸ PAUSAR" : "▶ RETOMAR";
   renderTimer();
@@ -812,6 +833,7 @@ function readSetup() {
 
 /* ---------------- Fluxo ---------------- */
 function boot() {
+  lastSwapped = null;
   clearInterval(ticker);
   ticker = setInterval(() => { if (S && !S.finished) renderTimer(); }, 500);
   requestWake();

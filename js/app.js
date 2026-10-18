@@ -14,6 +14,7 @@ const PT = E.PT;
 let M = null, S = null, P = [[null, null], [null, null]], T = null;
 let savedId = null;      // id da partida no histórico (se já foi salva)
 let tref = null;         // vínculo com torneio: { id, matchId }
+let viewFlip = 0;        // 1 = tela espelhada (Dupla 1 à direita). É só visual: não entra na contagem nem no desfazer
 let ticker = null, wakeLock = null, lastTap = 0, alertTimer = null;
 const setupPhotos = [[null, null], [null, null]];
 
@@ -24,7 +25,7 @@ const safe = (fn) => { try { return fn(); } catch (_) { return undefined; } };
 /* ---------------- Persistência ---------------- */
 function save() {
   if (!M) return;
-  safe(() => localStorage.setItem(KEY, JSON.stringify({ S: M.S, undo: M.undo, G: M.G, T, savedId, tref, savedAt: Date.now() })));
+  safe(() => localStorage.setItem(KEY, JSON.stringify({ S: M.S, undo: M.undo, G: M.G, T, savedId, tref, viewFlip, savedAt: Date.now() })));
   safe(() => localStorage.setItem(KEY_PHOTOS, JSON.stringify(P)));
   if (typeof syncPush === "function") syncPush();
 }
@@ -52,11 +53,11 @@ function renderTimer() {
 }
 
 /* ---------------- Partida ---------------- */
-function startMatch(cfg, photos, torneio) {
+function startMatch(cfg, photos, torneio, flip) {
   M = E.create(cfg); S = M.S;
   P = clone(photos);
   T = { base: 0, runStart: Date.now(), startedAt: new Date().toISOString() };
-  savedId = null; tref = torneio || null;
+  savedId = null; tref = torneio || null; viewFlip = flip ? 1 : 0;
   save();
   boot();
 }
@@ -144,8 +145,10 @@ function xScore(a, b) {
   return `<span class="c1">${a}</span><span class="x"> x </span><span class="c2">${b}</span>`;
 }
 /* Placar na ordem em que as duplas aparecem na tela (esquerda x direita) */
+/* true = a Dupla 2 aparece à esquerda da tela (troca de lado da quadra + espelhamento escolhido) */
+const shownSwapped = () => S.swapped !== !!viewFlip;
 function sideScore(v) {
-  return S.swapped
+  return shownSwapped()
     ? `<span class="c2">${v[1]}</span><span class="x"> x </span><span class="c1">${v[0]}</span>`
     : xScore(v[0], v[1]);
 }
@@ -153,10 +156,10 @@ function sideScore(v) {
 let lastSwapped = null;
 function placeTeams() {
   const cards = [$("team-0"), $("team-1")];
-  const animate = lastSwapped !== null && lastSwapped !== S.swapped && $("game").classList.contains("active") &&
+  const animate = lastSwapped !== null && lastSwapped !== shownSwapped() && $("game").classList.contains("active") &&
     !matchMedia("(prefers-reduced-motion: reduce)").matches;
   const before = cards.map((c) => [c.offsetLeft, c.offsetTop]);
-  cards.forEach((c, t) => { c.style.gridArea = (t === 0) !== S.swapped ? "t1" : "t2"; });
+  cards.forEach((c, t) => { c.style.gridArea = (t === 0) !== shownSwapped() ? "t1" : "t2"; });
   if (animate) {
     cards.forEach((c, t) => {
       const dx = before[t][0] - c.offsetLeft, dy = before[t][1] - c.offsetTop;
@@ -168,7 +171,7 @@ function placeTeams() {
       $(id).animate([{ opacity: 0, transform: "scale(.8)" }, { opacity: 1, transform: "none" }], { duration: 450, easing: "ease-out" });
     }
   }
-  lastSwapped = S.swapped;
+  lastSwapped = shownSwapped();
 }
 
 function render() {
@@ -403,7 +406,8 @@ function readSetup() {
     return (v || `Atleta ${t * 2 + i + 1}`).toUpperCase();
   }));
   const [ft, fi] = document.querySelector('input[name="first"]:checked').value.split("-").map(Number);
-  return { names, first: [ft, fi], target: BTStore.getSettings().setSize };
+  const flip = +document.querySelector('input[name="startside"]:checked').value;
+  return { names, first: [ft, fi], target: BTStore.getSettings().setSize, flip };
 }
 
 /* ---------------- Fluxo ---------------- */
@@ -419,7 +423,7 @@ function boot() {
 function goSetup() {
   const back = tref;
   safe(() => localStorage.removeItem(KEY));
-  M = null; S = null; T = null; savedId = null; tref = null;
+  M = null; S = null; T = null; savedId = null; tref = null; viewFlip = 0;
   clearInterval(ticker); hideAlert(); releaseWake();
   $("resume-box").classList.remove("show");
   const cfg = safe(() => JSON.parse(localStorage.getItem(KEY_CFG) || "null"));
@@ -462,6 +466,7 @@ $("fx-close").addEventListener("click", () => $("dlg-fix").close());
 $("fx-point").addEventListener("click", () => { $("dlg-fix").close(); undoPoint(); });
 $("fx-game").addEventListener("click", () => { $("dlg-fix").close(); undoGame(); });
 $("fx-edit").addEventListener("click", () => { $("dlg-fix").close(); openEdit(); });
+$("fx-flip").addEventListener("click", () => { $("dlg-fix").close(); viewFlip ^= 1; save(); render(); toast("Lados invertidos na tela"); });
 $("ed-ok").addEventListener("click", applyEdit);
 $("ed-cancel").addEventListener("click", () => $("dlg-edit").close());
 $("btn-reset").addEventListener("click", () => confirmDialog("Reiniciar partida?", "Todo o placar será perdido e você voltará à tela inicial.", "Reiniciar", goSetup));
@@ -470,11 +475,11 @@ $("btn-back").addEventListener("click", () => { startClock(); undoPoint(); });
 $("btn-start").addEventListener("click", () => {
   const cfg = readSetup();
   safe(() => localStorage.setItem(KEY_CFG, JSON.stringify(cfg)));
-  startMatch(cfg, setupPhotos);
+  startMatch(cfg, setupPhotos, null, cfg.flip);
 });
 function resumeSaved() {
   const d = loadSaved(); if (!d) return false;
-  M = { S: d.S, undo: d.undo || [], G: d.G || [] }; S = M.S; T = d.T; P = d.P; savedId = d.savedId || null; tref = d.tref || null;
+  M = { S: d.S, undo: d.undo || [], G: d.G || [] }; S = M.S; T = d.T; P = d.P; savedId = d.savedId || null; tref = d.tref || null; viewFlip = d.viewFlip || 0;
   if (!T.startedAt) T.startedAt = new Date().toISOString();
   if (T.runStart) { T.base += Math.max(0, (d.savedAt || Date.now()) - T.runStart); T.runStart = Date.now(); }  // não conta o app fechado
   boot();

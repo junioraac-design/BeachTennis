@@ -199,7 +199,27 @@ function playTourneyMatch(tid, mid) {
   if (!m || !m.a || !m.b) return;
   const reg = BTStore.getAthletes();
   const photos = [m.a, m.b].map((team) => team.map((n) => (reg[n] && reg[n].photo) || null));
-  startMatch({ names: [m.a.slice(), m.b.slice()], first: [0, 0], target: t.target || 6 }, photos, { id: tid, matchId: mid });
+  // quem começa à esquerda é definido na hora, olhando a quadra
+  $("sd-note").textContent = "Olhando a quadra de onde você vai marcar, qual dupla começa à esquerda?";
+  $("sd-a").textContent = `◀ ${teamTxt(m.a)}`; $("sd-b").textContent = `${teamTxt(m.b)} ▶`;
+  const go = (flip) => { $("dlg-side").close(); chooseFirstServer(m, photos, (first) =>
+    startMatch({ names: [m.a.slice(), m.b.slice()], first, target: t.target || 6 }, photos, { id: tid, matchId: mid }, flip)); };
+  $("sd-a").onclick = () => go(0); $("sd-b").onclick = () => go(1);
+  $("dlg-side").showModal();
+}
+
+/* Escolha de quem saca primeiro (4 atletas) */
+function chooseFirstServer(m, photos, done) {
+  const row = $("first-row");
+  row.textContent = "";
+  [m.a, m.b].forEach((team, t) => team.forEach((name, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "pick-btn";
+    b.append(makePhoto(photos[t][i], name), document.createTextNode(name));
+    b.addEventListener("click", () => { $("dlg-first").close(); done([t, i]); });
+    row.appendChild(b);
+  }));
+  $("dlg-first").showModal();
 }
 
 let resTarget = null;

@@ -40,6 +40,11 @@
     </div>
     <div class="field-label">🎾 Marque o atleta que fará o primeiro saque</div>
 
+    <div class="field-label">Lado inicial na tela (como você vê a quadra)</div>
+    <div class="seg">
+      <input type="radio" name="startside" id="sd0" value="0" checked><label for="sd0">◀ Dupla 1 à esquerda</label>
+      <input type="radio" name="startside" id="sd1" value="1"><label for="sd1">Dupla 1 à direita ▶</label>
+    </div>
     <button class="btn btn-primary" id="btn-start" type="button">Começar partida</button>
     <div class="menu-row">
       <button class="btn btn-secondary" id="btn-tourneys" type="button">🏆 Torneios</button>
@@ -236,6 +241,23 @@
   <button class="btn btn-primary" id="set-close" type="button">Pronto</button>
 </dialog>
 
+<!-- Lado inicial (jogos de torneio) -->
+<dialog id="dlg-side">
+  <h3>◀ ▶ Lado inicial</h3>
+  <p id="sd-note"></p>
+  <button class="btn btn-primary" id="sd-a" type="button" style="margin-top:0"></button>
+  <button class="btn btn-primary" id="sd-b" type="button"></button>
+  <button class="btn btn-secondary" id="sd-cancel" type="button" onclick="document.getElementById('dlg-side').close()">Cancelar</button>
+</dialog>
+
+<!-- Quem saca primeiro (jogos de torneio) -->
+<dialog id="dlg-first">
+  <h3>🎾 Quem saca primeiro?</h3>
+  <p>Toque no atleta que fará o primeiro saque.</p>
+  <div class="pick-row" id="first-row"></div>
+  <button class="btn btn-secondary" type="button" onclick="document.getElementById('dlg-first').close()">Cancelar</button>
+</dialog>
+
 <!-- Lançar resultado manualmente -->
 <dialog id="dlg-tres">
   <h3>✏ Lançar placar</h3>
@@ -278,6 +300,7 @@
   <button class="btn btn-secondary" id="fx-point" type="button">↶ Desfazer último ponto</button>
   <button class="btn btn-secondary" id="fx-game" type="button">⏮ Desfazer último game</button>
   <button class="btn btn-secondary" id="fx-edit" type="button">✏ Editar placar manualmente</button>
+  <button class="btn btn-secondary" id="fx-flip" type="button">⇄ Inverter lados na tela</button>
   <button class="btn btn-secondary" id="fx-close" type="button">Voltar</button>
 </dialog>
 

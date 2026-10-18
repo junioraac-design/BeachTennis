@@ -28,7 +28,7 @@ function tvLink(local) {
 
 function tvPayload() {
   if (!M || !S) return { idle: true, ts: Date.now() };
-  return { ts: Date.now(), key: T.startedAt, S, elapsed: elapsedMs(), running: !!T.runStart, startedAt: T.startedAt };
+  return { ts: Date.now(), key: T.startedAt, S, flip: viewFlip, elapsed: elapsedMs(), running: !!T.runStart, startedAt: T.startedAt };
 }
 function syncPush() {
   if (!tvConfig().on) return;
@@ -61,7 +61,7 @@ function tvApply(state, photos) {
   if (state.ts === tvLastTs) return;
   tvLastTs = state.ts;
   const prevSwapped = S && S.swapped, prevGames = S ? S.games[0] + S.games[1] : 0;
-  S = state.S;
+  S = state.S; viewFlip = state.flip || 0;
   if (!S.target) S.target = 6;
   if (photos && photos.key === state.key) P = photos.P;
   T = { base: state.elapsed, runStart: state.running ? Date.now() : null, startedAt: state.startedAt };

@@ -6,6 +6,7 @@ Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem s
 
 ## Na partida
 - **Cadastro:** foto (câmera ou galeria) e nome dos 4 atletas; fotos reaproveitadas pelo nome; escolha de quem saca o Game 1
+- **Lado inicial:** escolhido na hora, como você vê a quadra (Dupla 1 à esquerda ou à direita); **⚙ Corrigir → Inverter lados na tela** espelha a qualquer momento (não afeta placar nem desfazer)
 - **Saque:** pergunta quem saca o Game 2 e depois segue a sequência sozinho (A1 → B1 → A2 → B2…). Sacador com borda verde e 🎾
 - **Pontuação:** 0, 15, 30, 40; em 40x40 o próximo ponto decide (ponto de ouro)
 - **Games:** 6x0 a 6x4, 7x5, tie-break em 6x6 (sem limite, diferença mínima de 2). Set curto de 4 games opcional
@@ -25,7 +26,7 @@ Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem s
 - **Super 8:** 8 atletas, 7 rodadas, cada um joga uma vez ao lado de cada outro; classificação individual
 - **Rei da Quadra / Rainha da Quadra:** rodadas sorteadas uma a uma, com rodízio justo e parceiros diferentes; 1 ou 2 quadras
 - **Chaveamento:** mata-mata de 3 a 16 duplas, com folgas
-- Cada jogo pode ser disputado no placar (o resultado volta sozinho) ou lançado à mão
+- Cada jogo pode ser disputado no placar (o resultado volta sozinho; o app pergunta o lado inicial e quem saca primeiro) ou lançado à mão
 - **Ranking geral dos torneios** no histórico
 
 ## 📺 TV ao vivo

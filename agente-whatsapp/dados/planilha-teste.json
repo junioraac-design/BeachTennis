@@ -1,0 +1,17 @@
+{
+  "Clientes": [
+    { "ID Cliente": 1, "Nome": "CONSUMIDOR FINAL", "Telefone": "", "E-mail": "", "Cidade": "", "Observações": "" },
+    { "ID Cliente": 2, "Nome": "CAROL NOGUEIRA", "Telefone": "5511999990001", "E-mail": "", "Cidade": "", "Observações": "" }
+  ],
+  "Produtos": [
+    { "ID Produto": 1, "Produto": "FOTO 10X15", "ID Cliente": 1, "Categoria": "FOTOS", "Preço Unitário": 2.5, "Ativo": "SIM" },
+    { "ID Produto": 2, "Produto": "FOTO 15X21", "ID Cliente": 1, "Categoria": "FOTOS", "Preço Unitário": 5, "Ativo": "SIM" },
+    { "ID Produto": 3, "Produto": "IMPRESSÃO A4 PRETO E BRANCO", "ID Cliente": 1, "Categoria": "DOCUMENTOS", "Preço Unitário": 1, "Ativo": "SIM" },
+    { "ID Produto": 4, "Produto": "IMPRESSÃO A4 COLORIDA", "ID Cliente": 1, "Categoria": "DOCUMENTOS", "Preço Unitário": 3, "Ativo": "SIM" },
+    { "ID Produto": 5, "Produto": "RÓTULO DOCES DA CAROL", "ID Cliente": 2, "Categoria": "RÓTULOS", "Preço Unitário": 0.25, "Ativo": "SIM" }
+  ],
+  "Pedidos": [],
+  "ItensPedido": [],
+  "Lembretes": [],
+  "Atendimentos": []
+}

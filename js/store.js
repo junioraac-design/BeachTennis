@@ -4,7 +4,7 @@
   else root.BTStore = factory(root.localStorage);
 })(typeof self !== "undefined" ? self : this, function (ls) {
   "use strict";
-  const K = { history: "beachtennis:history", athletes: "beachtennis:athletes", settings: "beachtennis:settings", tourneys: "beachtennis:tournaments" };
+  const K = { history: "beachtennis:history", athletes: "beachtennis:athletes", settings: "beachtennis:settings", tourneys: "beachtennis:tournaments", brand: "beachtennis:brand" };
   const DEFAULT_SETTINGS = {
     autoSave: true,        // salvar a partida no histórico ao terminar
     setSize: 6,            // games do set em partidas avulsas (6 = regra oficial)
@@ -14,7 +14,8 @@
     sideAlert: "full",     // "full" = tela cheia, "banner" = faixa discreta
     tvOn: false,           // transmitir o placar para a TV
     tvDb: "",              // endereço do Firebase Realtime Database (opcional)
-    tvCode: ""             // código da sala (gerado automaticamente)
+    tvCode: "",            // código da sala (gerado automaticamente)
+    tvApiKey: ""           // chave de API do Firebase (opcional): liga o modo seguro (só este aparelho escreve)
   };
 
   function read(key, fallback) {
@@ -48,6 +49,14 @@
   const getSettings = () => Object.assign({}, DEFAULT_SETTINGS, read(K.settings, {}));
   function setSettings(patch) { return write(K.settings, Object.assign(getSettings(), patch)); }
 
+  /* ---- arena e patrocinador (nome, logo, imagem do patrocinador) ---- */
+  const EMPTY_BRAND = { name: "", logo: null, sponsor: null, sponsorText: "", ver: 0 };
+  const getBrand = () => Object.assign({}, EMPTY_BRAND, read(K.brand, {}));
+  function setBrand(patch) {
+    const b = Object.assign(getBrand(), patch, { ver: Date.now() });   // ver muda a cada alteração (a TV só baixa as imagens quando muda)
+    return write(K.brand, b) ? b : null;
+  }
+
   /* ---- torneios ---- */
   const getTourneys = () => read(K.tourneys, []);
   function saveTourney(t) {
@@ -77,6 +86,6 @@
     return ok ? { ok: true, added } : { ok: false, reason: "Sem espaço para gravar" };
   }
 
-  return { newId, getHistory, saveMatch, deleteMatch, getAthletes, rememberAthlete, getSettings, setSettings,
+  return { newId, getHistory, saveMatch, deleteMatch, getAthletes, rememberAthlete, getSettings, setSettings, getBrand, setBrand,
     getTourneys, saveTourney, deleteTourney, exportAll, importAll, DEFAULT_SETTINGS };
 });

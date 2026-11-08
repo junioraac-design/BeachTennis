@@ -48,3 +48,14 @@ test("falha de gravação é reportada (armazenamento cheio)", () => {
   const S = makeStore(ls);
   assert.strictEqual(S.saveMatch(rec("m1", "2026-01-01")), null);
 });
+
+test("arena e patrocinador: começa vazio, guarda e muda a versão a cada alteração", async () => {
+  const S = makeStore(fakeLS());
+  assert.deepStrictEqual([S.getBrand().name, S.getBrand().logo, S.getBrand().ver], ["", null, 0]);
+  const a = S.setBrand({ name: "ARENA SOL", logo: "data:x" });
+  await new Promise((r) => setTimeout(r, 3));
+  const b = S.setBrand({ sponsorText: "Loja Praia" });
+  assert.strictEqual(S.getBrand().name, "ARENA SOL");          // alteração parcial mantém o resto
+  assert.strictEqual(S.getBrand().sponsorText, "Loja Praia");
+  assert.ok(b.ver > a.ver);
+});

@@ -9,7 +9,10 @@ function loadImg(url) {
 }
 
 async function renderShareImage(rec) {
-  const W = 1080, H = 1350;
+  const brand = typeof curBrand !== "undefined" ? curBrand : { name: "", logo: null, sponsor: null, sponsorText: "" };
+  const hasSponsor = !!(brand.sponsor || brand.sponsorText);
+  const [logoImg, sponsorImg] = await Promise.all([loadImg(brand.logo), loadImg(brand.sponsor)]);
+  const W = 1080, H = 1350 + (hasSponsor ? 170 : 0);
   const c = document.createElement("canvas"); c.width = W; c.height = H;
   const x = c.getContext("2d");
   const font = (w, px) => `${w} ${px}px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`;
@@ -21,7 +24,15 @@ async function renderShareImage(rec) {
   x.fillStyle = "#f2c879"; x.fillRect(0, H - 14, W, 14);
   x.textAlign = "center"; x.textBaseline = "middle";
 
-  x.fillStyle = "#f4f1ea"; x.font = font(800, 56); x.fillText("🎾 BEACH TENNIS", W / 2, 100);
+  // cabeçalho: logo + nome da arena (ou o título padrão)
+  const title = brand.name ? brand.name.toUpperCase() : (logoImg ? "" : "🎾 BEACH TENNIS");
+  x.fillStyle = "#f4f1ea"; fit(title, W - 160 - (logoImg ? 140 : 0), 56, 800);
+  const tw = title ? x.measureText(title).width : 0;
+  let lh = 0, lw = 0;
+  if (logoImg) { lh = Math.min(110, logoImg.height); lw = logoImg.width * (lh / logoImg.height); if (lw > 220) { lw = 220; lh = logoImg.height * (lw / logoImg.width); } }
+  const gap = logoImg && title ? 22 : 0, startX = W / 2 - (lw + gap + tw) / 2;
+  if (logoImg) x.drawImage(logoImg, startX, 100 - lh / 2, lw, lh);
+  if (title) { x.textAlign = "left"; x.fillText(title, startX + lw + gap, 102); x.textAlign = "center"; }
   x.fillStyle = "#9db4c9"; x.font = font(500, 34);
   const date = rec.date ? new Date(rec.date).toLocaleString("pt-BR", { dateStyle: "long", timeStyle: "short" }) : "";
   x.fillText(date, W / 2, 165);
@@ -62,6 +73,14 @@ async function renderShareImage(rec) {
   x.fillStyle = "#f4f1ea"; x.font = font(700, 46);
   x.fillText(`⏱ ${fmt(rec.duration)}`, W / 2, 1230);
   if (rec.tbResult) { x.fillStyle = "#f2c879"; x.font = font(700, 40); x.fillText(`TIE-BREAK ${rec.tbResult.score[0]} x ${rec.tbResult.score[1]}`, W / 2, 1290); }
+  if (hasSponsor) {
+    const y0 = 1350;
+    x.fillStyle = "#9db4c9"; x.font = font(700, 24); x.fillText("PATROCÍNIO", W / 2, y0 + 8);
+    if (sponsorImg) {
+      const k = Math.min(900 / sponsorImg.width, 110 / sponsorImg.height, 1.5), w = sponsorImg.width * k, h = sponsorImg.height * k;
+      x.drawImage(sponsorImg, W / 2 - w / 2, y0 + 30 + (110 - h) / 2, w, h);
+    } else { x.fillStyle = "#f4f1ea"; fit(brand.sponsorText, 900, 46, 800); x.fillText(brand.sponsorText, W / 2, y0 + 85); }
+  }
   return c;
 }
 

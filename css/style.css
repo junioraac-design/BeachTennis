@@ -258,3 +258,38 @@ body.tv .team-card { justify-content: center; }
 body.tv .side-alert .tap { display: none; }
 .tvstat { font-size: clamp(.85rem, 2.4vmin, 1.2rem); max-width: 80vw; margin: 14px auto 0; }
 #tv-status-host { margin-top: 8px; font-weight: 700; }
+
+/* ---------- Arena e patrocinador ---------- */
+.arena { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
+.arena .a-logo { height: clamp(28px, 6.5vmin, 60px); width: auto; max-width: 28vmin; object-fit: contain; }
+.arena .a-name { font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: clamp(.8rem, 2.8vmin, 1.7rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 44vw; color: var(--sand); }
+.brand .arena { margin: 4px 0 8px; } .final-card > .arena { margin-bottom: 10px; }
+.topbar-center { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vmin, 34px); max-width: calc(100% - 130px); }
+#game.portrait .topbar-center { flex-direction: column; gap: 0; }
+.sponsor { margin-top: auto; padding-top: 8px; width: 100%; text-align: center; }
+.sponsor small { display: block; font-size: clamp(.55rem, 1.4vmin, .8rem); letter-spacing: .22em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.sponsor .s-img { max-width: 94%; max-height: clamp(40px, 15vmin, 170px); object-fit: contain; border-radius: 10px; }
+.sponsor .s-txt { display: block; font-weight: 800; font-size: clamp(.8rem, 2.4vmin, 1.4rem); }
+.final-card .sponsor { margin-top: 18px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
+.center-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; }
+.img-pick { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.img-pick img { height: 48px; max-width: 110px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,.08); }
+.img-pick .btn { margin-top: 0; width: auto; flex: 1; padding: 10px 8px; font-size: .85rem; }
+
+/* ---------- Fotos e nomes preenchendo melhor o espaço (cresce com o tamanho do painel) ---------- */
+@supports (width: 1cqw) {
+  .team-card { container-type: size; }
+  .tile .photo { width: min(40cqw, 33cqh, 300px); height: min(40cqw, 33cqh, 300px); font-size: min(15cqw, 12cqh); }
+  .tile .nm { font-size: clamp(.8rem, min(6.6cqw, 5.4cqh), 2.4rem); }
+  .team-title { font-size: clamp(.75rem, min(5cqw, 3.4cqh), 1.4rem); }
+  #game.portrait .tile .photo { width: min(62cqw, 25cqh); height: min(62cqw, 25cqh); font-size: min(22cqw, 9cqh); }
+  #game.portrait .tile .nm { font-size: clamp(.75rem, min(9.5cqw, 5cqh), 1.7rem); }
+}
+/* painel mais alto que largo (TV/tablet em pé): atletas empilhados, fotos maiores */
+@supports (width: 1cqw) {
+  @container (max-aspect-ratio: 1/1) {
+    .tiles { flex-direction: column; gap: clamp(6px, 2cqh, 18px); padding-top: 1.5cqh; }
+    .tile .photo { width: min(60cqw, 27cqh, 320px); height: min(60cqw, 27cqh, 320px); font-size: min(20cqw, 9cqh); }
+    .tile .nm { font-size: clamp(.8rem, min(9cqw, 5cqh), 2.2rem); }
+  }
+}

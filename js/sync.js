@@ -7,8 +7,11 @@
  *  Visualizador (TV): abre   index.html?tv=CODIGO&db=ENDERECO   e só exibe o placar.
  * ===================================================================== */
 const TV_POLL_MS = 1000;
+const AUTH_BASE = window.BT_AUTH_BASE || "https://identitytoolkit.googleapis.com";
+const TOKEN_BASE = window.BT_TOKEN_BASE || "https://securetoken.googleapis.com";
+const KEY_TVAUTH = "beachtennis:tvauth";
 const tvChannel = ("BroadcastChannel" in self) ? new BroadcastChannel("beachtennis-tv") : null;
-let tvPushTimer = null, tvPhotoKey = null;
+let tvPushTimer = null, tvPhotoKey = null, tvBrandVer = null;
 
 /* ---------- Anfitrião ---------- */
 /* Aceita o endereço colado de qualquer jeito (sem https, com / no fim ou com caminho) e fica só com o domínio */
@@ -20,7 +23,49 @@ function normDb(v) {
 }
 function tvConfig() {
   const c = BTStore.getSettings();
-  return { on: c.tvOn, db: normDb(c.tvDb), code: c.tvCode };
+  return { on: c.tvOn, db: normDb(c.tvDb), code: c.tvCode, apiKey: (c.tvApiKey || "").trim() };
+}
+
+/* Modo seguro: login anônimo do Firebase. O aparelho vira "dono" da sala (campo owner = uid);
+   as regras só deixam o dono escrever, e qualquer pessoa com o link só lê. */
+class TvError extends Error { constructor(msg) { super(msg); this.tv = true; } }
+const readAuth = () => { try { return JSON.parse(localStorage.getItem(KEY_TVAUTH)) || null; } catch (_) { return null; } };
+const writeAuth = (a) => { try { localStorage.setItem(KEY_TVAUTH, JSON.stringify(a)); } catch (_) {} };
+
+async function authCall(url, init) {
+  let r;
+  try { r = await fetch(url, init); } catch (_) { throw new TvError("Sem conexão para fazer o login do Firebase."); }
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    const m = (d.error && d.error.message) || "";
+    if (/OPERATION_NOT_ALLOWED|ADMIN_ONLY/.test(m)) throw new TvError("Ative o login Anônimo: Firebase → Authentication → Método de login → Anônimo.");
+    if (/API.?KEY|API key/i.test(m)) throw new TvError("Chave de API inválida. Copie de novo em Configurações do projeto → Geral → Chave de API da Web.");
+    throw new TvError("Falha no login do Firebase" + (m ? ` (${m})` : "") + ".");
+  }
+  return d;
+}
+/* Devolve { token, uid } (modo seguro) ou null (modo aberto, sem chave) */
+async function tvAuth() {
+  const { apiKey } = tvConfig();
+  if (!apiKey) return null;
+  let a = readAuth();
+  if (a && a.apiKey === apiKey && a.exp > Date.now() + 60000) return { token: a.idToken, uid: a.uid };
+  let d;
+  if (a && a.apiKey === apiKey && a.refreshToken) {
+    try {
+      d = await authCall(`${TOKEN_BASE}/v1/token?key=${encodeURIComponent(apiKey)}`, {
+        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(a.refreshToken)}` });
+      a = { apiKey, uid: d.user_id, idToken: d.id_token, refreshToken: d.refresh_token, exp: Date.now() + (+d.expires_in || 3600) * 1000 };
+    } catch (_) { d = null; }
+  }
+  if (!d) {
+    d = await authCall(`${AUTH_BASE}/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ returnSecureToken: true }) });
+    a = { apiKey, uid: d.localId, idToken: d.idToken, refreshToken: d.refreshToken, exp: Date.now() + (+d.expiresIn || 3600) * 1000 };
+  }
+  writeAuth(a);
+  return { token: a.idToken, uid: a.uid };
 }
 
 /* O Firebase descarta null e listas vazias e transforma listas com buracos em objetos.
@@ -47,7 +92,9 @@ let tvStatus = "";
 function setTvStatus(msg) { tvStatus = msg; const el = $("tv-status-host"); if (el) el.textContent = msg; }
 const hhmmss = () => new Date().toLocaleTimeString("pt-BR");
 function explain(status) {
-  if (status === 401 || status === 403) return `Permissão negada (HTTP ${status}). Confira as Regras do Firebase (README).`;
+  if (status === 401 || status === 403) return tvConfig().apiKey
+    ? `Permissão negada (HTTP ${status}). Publique as regras seguras (botão "Copiar regras seguras"). Se esta sala foi criada por outro aparelho, use "Gerar novo link".`
+    : `Permissão negada (HTTP ${status}). Confira as Regras do Firebase (README).`;
   if (status === 404) return "Banco não encontrado (HTTP 404). Confira o endereço.";
   return `Resposta inesperada (HTTP ${status}).`;
 }
@@ -63,8 +110,9 @@ function tvLink(local) {
 }
 
 function tvPayload() {
-  if (!M || !S) return { idle: true, ts: Date.now() };
-  return { ts: Date.now(), key: T.startedAt, S, flip: viewFlip, elapsed: elapsedMs(), running: !!T.runStart, startedAt: T.startedAt };
+  const base = { brandVer: BTStore.getBrand().ver || 0 };
+  if (!M || !S) return Object.assign(base, { idle: true, ts: Date.now() });
+  return Object.assign(base, { ts: Date.now(), key: T.startedAt, S, flip: viewFlip, elapsed: elapsedMs(), running: !!T.runStart, startedAt: T.startedAt });
 }
 function syncPush() {
   if (!tvConfig().on) return;
@@ -73,44 +121,82 @@ function syncPush() {
 }
 function syncIdle() { if (tvConfig().on) { tvPhotoKey = null; tvSend(); } }
 
+/* Endereço de uma operação na sala (com o token, no modo seguro) */
+const roomUrl = (db, code, auth, extra) => `${db}/rooms/${code}.json?${extra ? extra + "&" : ""}${auth ? "auth=" + encodeURIComponent(auth.token) : ""}`;
+
 async function tvSend() {
   const { db, code } = tvConfig();
   const payload = tvPayload();
   const photos = payload.idle ? null : { key: payload.key, P };
-  if (tvChannel) tvChannel.postMessage({ state: payload, photos });
+  const brand = BTStore.getBrand();
+  if (tvChannel) tvChannel.postMessage({ state: payload, photos, brand });
   if (!db || !code) { setTvStatus("Sem endereço do Firebase: transmitindo só para a mesma tela/aparelho."); return; }
   try {
-    const url = `${db}/rooms/${code}`;
-    if (photos && tvPhotoKey !== payload.key) {
-      const r = await fetch(`${url}/photos.json?print=silent`, { method: "PUT", body: JSON.stringify(photos) });
-      if (r.ok) tvPhotoKey = payload.key; else return setTvStatus("❌ " + explain(r.status));
-    }
-    const r = await fetch(`${url}/state.json?print=silent`, { method: "PUT", body: JSON.stringify(payload) });
-    setTvStatus(r.ok ? `✔ Transmitindo (último envio ${hhmmss()})` : "❌ " + explain(r.status));
-  } catch (_) { setTvStatus("❌ Sem conexão com o banco. Confira o endereço e a internet; tento de novo no próximo ponto."); }
+    const auth = await tvAuth();
+    // um único PATCH atualiza o placar e, só quando mudaram, as fotos e a arena/patrocinador
+    const body = { state: payload };
+    if (auth) body.owner = auth.uid;
+    if (photos && tvPhotoKey !== payload.key) body.photos = photos;
+    if (tvBrandVer !== brand.ver) body.brand = brand;
+    const r = await fetch(roomUrl(db, code, auth, "print=silent"), { method: "PATCH", body: JSON.stringify(body) });
+    if (r.ok) {
+      if (body.photos) tvPhotoKey = payload.key;
+      if (body.brand) tvBrandVer = brand.ver;
+      setTvStatus(`✔ Transmitindo${auth ? " (modo seguro)" : ""} (último envio ${hhmmss()})`);
+    } else setTvStatus("❌ " + explain(r.status));
+  } catch (e) {
+    setTvStatus(e && e.tv ? "❌ " + e.message : "❌ Sem conexão com o banco. Confira o endereço e a internet; tento de novo no próximo ponto.");
+  }
 }
 
-/* Botão "Testar conexão": escreve e lê um valor de teste no banco */
+/* Botão "Testar conexão": escreve e lê um valor de teste na sala */
 async function tvTest() {
-  const { db, code } = tvConfig();
+  const { db } = tvConfig();
   if (!db) return setTvStatus("❌ Informe o endereço do Firebase primeiro.");
   setTvStatus("Testando…");
   try {
-    const url = `${db}/rooms/${tvEnsureCode()}/teste.json`;
-    const stamp = Date.now();
-    const w = await fetch(url, { method: "PUT", body: JSON.stringify({ stamp }) });
+    const code = tvEnsureCode(), auth = await tvAuth(), stamp = Date.now();
+    const body = { teste: { stamp } };
+    if (auth) body.owner = auth.uid;
+    const w = await fetch(roomUrl(db, code, auth), { method: "PATCH", body: JSON.stringify(body) });
     if (!w.ok) return setTvStatus("❌ Não consegui gravar: " + explain(w.status));
-    const r = await fetch(url, { cache: "no-store" });
+    const r = await fetch(`${db}/rooms/${code}/teste.json`, { cache: "no-store" });
     if (!r.ok) return setTvStatus("❌ Não consegui ler: " + explain(r.status));
     const d = await r.json();
-    setTvStatus(d && d.stamp === stamp ? "✔ Conexão OK! Já pode abrir o link na TV." : "❌ O banco respondeu algo inesperado.");
-  } catch (_) { setTvStatus("❌ Não consegui falar com o endereço. Confira se ele está certo (começa com https://) e se há internet."); }
+    setTvStatus(d && d.stamp === stamp ? `✔ Conexão OK${auth ? " (modo seguro)" : ""}! Já pode abrir o link na TV.` : "❌ O banco respondeu algo inesperado.");
+  } catch (e) {
+    setTvStatus(e && e.tv ? "❌ " + e.message : "❌ Não consegui falar com o endereço. Confira se ele está certo (começa com https://) e se há internet.");
+  }
 }
+
+/* "Gerar novo link": apaga a sala antiga (quem tinha o link deixa de ver) e cria outra */
+async function tvNewLink() {
+  const { db, code } = tvConfig();
+  if (db && code) {
+    try { const auth = await tvAuth(); await fetch(roomUrl(db, code, auth, "print=silent"), { method: "DELETE" }); } catch (_) { /* melhor esforço */ }
+  }
+  BTStore.setSettings({ tvCode: Math.random().toString(36).slice(2, 8).toUpperCase() });
+  tvPhotoKey = null; tvBrandVer = null;
+  syncPush();
+  const link = tvLink(false);
+  try { await navigator.clipboard.writeText(link); toast("Novo link gerado e copiado. O link antigo parou de funcionar."); }
+  catch (_) { prompt("Novo link da TV (o antigo parou de funcionar):", link); }
+}
+
+/* Regras para publicar no Firebase (Realtime Database → Regras) */
+const SECURE_RULES = {
+  rules: { rooms: { $code: {
+    ".read": true,
+    ".write": "auth != null && (!data.exists() || data.child('owner').val() === auth.uid)",
+    ".validate": "newData.hasChild('owner') && newData.child('owner').val() === auth.uid"
+  } } }
+};
 
 /* ---------- Visualizador (TV) ---------- */
 let tvLastTs = 0, tvSide = null;
 
-function tvApply(state, photos) {
+function tvApply(state, photos, brand) {
+  if (brand) applyBrand(brand);
   if (!state || state.idle) { tvLastTs = state ? state.ts : 0; S = null; showScreen("tvwait"); return; }
   if (state.ts === tvLastTs) return;
   tvLastTs = state.ts;
@@ -140,10 +226,10 @@ function startViewer(code, db) {
   requestWake();
   setInterval(() => { if (S && !S.finished) renderTimer(); }, 500);
   // mesma tela/aparelho: chega pelo BroadcastChannel
-  if (tvChannel) tvChannel.onmessage = (e) => tvApply(e.data.state, e.data.photos);
+  if (tvChannel) tvChannel.onmessage = (e) => tvApply(e.data.state, e.data.photos, e.data.brand);
   if (code === "local" || !db) return;
   const url = `${db}/rooms/${code}`;
-  let photoKey = null, photos = null;
+  let photoKey = null, photos = null, brandVer = null;
   const status = (t) => { const el = $("tv-status"); if (el) el.textContent = t; };
   status("Conectando ao banco…");
   const poll = async () => {
@@ -157,8 +243,16 @@ function startViewer(code, db) {
         const ph = pr.ok ? await pr.json() : null;
         if (ph && ph.key === state.key) { photos = ph; photoKey = state.key; }
       }
+      // arena/patrocinador: só baixa as imagens quando mudaram
+      const bv = state.brandVer || 0;
+      let brand = null;
+      if (bv !== brandVer) {
+        if (!bv) brand = { name: "", logo: null, sponsor: null, sponsorText: "", ver: 0 };
+        else { const br = await fetch(`${url}/brand.json`, { cache: "no-store" }); const b = br.ok ? await br.json() : null; if (b) brand = Object.assign({ name: "", logo: null, sponsor: null, sponsorText: "" }, b); }
+        if (brand) brandVer = bv;
+      }
       status("✔ Conectado");
-      tvApply(state, photos);
+      tvApply(state, photos, brand);
     } catch (e) {
       status("❌ Sem conexão com o banco (" + (e && e.message ? e.message : "erro") + "). Confira o link e a internet.");
     }
@@ -171,6 +265,7 @@ function refreshTvSettings() {
   const c = BTStore.getSettings();
   $("s-tvon").checked = c.tvOn;
   $("s-tvdb").value = c.tvDb || "";
+  $("s-tvkey").value = c.tvApiKey || "";
   $("tv-box").hidden = !c.tvOn;
   $("tv-status-host").textContent = tvStatus;
   if (c.tvOn) tvEnsureCode();
@@ -183,7 +278,18 @@ $("s-tvdb").addEventListener("change", (e) => {
   BTStore.setSettings({ tvDb: fixed }); tvPhotoKey = null; syncPush();
   if (fixed) tvTest();
 });
+$("s-tvkey").addEventListener("change", (e) => {
+  BTStore.setSettings({ tvApiKey: e.target.value.trim() });
+  tvPhotoKey = null; tvBrandVer = null;
+  if (tvConfig().db) tvTest();
+});
 $("tv-test").addEventListener("click", tvTest);
+$("tv-new").addEventListener("click", () => confirmDialog("Gerar novo link?", "O link atual deixa de funcionar para quem o recebeu. Você precisará enviar o novo link.", "Gerar novo link", tvNewLink));
+$("tv-rules").addEventListener("click", async () => {
+  const txt = JSON.stringify(SECURE_RULES, null, 2);
+  try { await navigator.clipboard.writeText(txt); toast("Regras copiadas! Cole em Firebase → Realtime Database → Regras e publique."); }
+  catch (_) { prompt("Copie estas regras:", txt); }
+});
 $("tv-open").addEventListener("click", () => { window.open(tvLink(!tvConfig().db), "_blank"); });
 $("tv-copy").addEventListener("click", async () => {
   const link = tvLink(false);

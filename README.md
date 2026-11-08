@@ -13,6 +13,7 @@ Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem s
 - **Troca de lado:** aviso 🔄 após cada game ímpar e, no tie-break, após 1, 5, 9, 13… pontos. Nomes, fotos e placar trocam de lado na tela, com animação, como nas transmissões de TV
 - **⚙ Corrigir:** desfazer ponto, desfazer game, editar games/pontos
 - **⟳ Girar tela:** automático, horizontal, horizontal invertido ou vertical
+- **🏟 Arena e patrocinador (em Configurações):** nome e logo da arena no topo do placar, e imagem/texto do patrocinador no centro. Também aparecem na tela final, na imagem de compartilhamento e na TV
 - **Configurações:** som, narração do placar em português, segurar para marcar ponto, aviso de troca de lado em tela cheia ou faixa, tamanho do set, salvar ao terminar
 - Partida salva automaticamente no navegador (retoma após fechar a página). Atalhos: `1`/`←`, `2`/`→`, `U` desfazer, `Espaço` pausar
 
@@ -42,11 +43,19 @@ Você marca os pontos no celular e a TV só exibe o placar.
    3. Copie o endereço do banco (algo como `https://seu-projeto-default-rtdb.firebaseio.com`).
    4. No app: *Configurações → Transmitir para a TV*, cole o endereço e toque em **Copiar link**. Abra esse link no navegador da TV.
    - Quem tiver o link vê o placar, os nomes e as fotos dos atletas (o código da sala é aleatório). Não compartilhe fora do jogo.
+   - **Gerar novo link** (em Configurações): apaga a sala atual e cria outra. Quem tinha o link antigo deixa de ver o placar.
+   - **Modo seguro (recomendado se o link for compartilhado):** com ele, só o seu aparelho consegue alterar o placar; quem abre o link só lê.
+     1. No Firebase, em *Build → Authentication → Método de login*, ative o provedor **Anônimo**.
+     2. Em *Configurações do projeto (engrenagem) → Geral*, copie a **Chave de API da Web**.
+     3. No app, cole essa chave em *Configurações → Transmitir para a TV → Chave de API*.
+     4. Toque em **📋 Copiar regras seguras**, cole em *Realtime Database → Regras* e publique. Depois toque em **Testar conexão**.
+     - A sala passa a pertencer ao aparelho que a criou. Se outro aparelho (ou o mesmo, após limpar os dados do navegador) precisar transmitir, use **Gerar novo link**.
    - Alternativa sem configurar nada: transmitir a tela do celular para a TV (Chromecast, AirPlay, Miracast).
 
 ### Se a TV não funcionar
 1. Em **⚙ Configurações → Transmitir para a TV**, toque em **🔍 Testar conexão**. O app diz o que está errado:
-   - **Permissão negada (401/403):** as *Regras* do Firebase não foram publicadas (veja o passo 2 acima).
+   - **Permissão negada (401/403):** as *Regras* do Firebase não foram publicadas (veja o passo 2 acima). No modo seguro, publique as regras seguras e, se a sala for de outro aparelho, use **Gerar novo link**.
+   - **Ative o login Anônimo / Chave de API inválida:** só no modo seguro; veja os passos acima.
    - **Sem conexão / endereço não encontrado:** o endereço do banco está errado (deve começar com `https://` e terminar em `firebaseio.com` ou `firebasedatabase.app`) ou não há internet.
 2. A tela da TV mostra o estado da conexão abaixo de "Aguardando partida…" (✔ Conectado ou o motivo do erro).
 3. Confira em **⚙ Configurações** o número da **Versão** no rodapé. Se estiver antigo, force a atualização (veja abaixo).
@@ -72,7 +81,8 @@ js/history.js        salvar, histórico, ranking, backup
 js/tourneys.js       telas dos torneios
 js/settings.js       configurações, som, voz, segurar para marcar
 js/share.js          imagem de compartilhamento
-js/sync.js           TV ao vivo
+js/sync.js           TV ao vivo (com modo seguro)
+js/brand.js          arena e patrocinador
 tests/               testes automáticos
 ```
 Rodar os testes (Node 18+): `npm test`

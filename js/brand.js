@@ -66,8 +66,8 @@ async function pickImage(input, key, maxW, maxH) {
 }
 $("s-logo-file").addEventListener("click", () => $("file-logo-f").click());
 $("s-sponsor-file").addEventListener("click", () => $("file-sponsor-f").click());
-["file-logo", "file-logo-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "logo", 320, 320)));
-["file-sponsor", "file-sponsor-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "sponsor", 720, 240)));
+["file-logo", "file-logo-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "logo", 480, 480)));
+["file-sponsor", "file-sponsor-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "sponsor", 960, 320)));
 $("btn-settings").addEventListener("click", refreshBrandSettings);
 $("btn-set").addEventListener("click", refreshBrandSettings);
 

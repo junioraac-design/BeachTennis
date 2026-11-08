@@ -13,7 +13,7 @@ Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem s
 - **Troca de lado:** aviso 🔄 após cada game ímpar e, no tie-break, após 1, 5, 9, 13… pontos. Nomes, fotos e placar trocam de lado na tela, com animação, como nas transmissões de TV
 - **⚙ Corrigir:** desfazer ponto, desfazer game, editar games/pontos
 - **⟳ Girar tela:** automático, horizontal, horizontal invertido ou vertical
-- **🏟 Arena e patrocinador (em Configurações):** nome e logo da arena no topo do placar, e imagem/texto do patrocinador no centro. Também aparecem na tela final, na imagem de compartilhamento e na TV
+- **🏟 Arena e patrocinador (em Configurações):** aparecem **só na transmissão (TV)**, no quadro central do placar (logo/nome da arena no alto e patrocinador embaixo, com cantos arredondados), e na tela final da TV. A imagem de compartilhamento do resultado também leva a arena e o patrocinador. O placar do celular fica limpo
 - **Configurações:** som, narração do placar em português, segurar para marcar ponto, aviso de troca de lado em tela cheia ou faixa, tamanho do set, salvar ao terminar
 - Partida salva automaticamente no navegador (retoma após fechar a página). Atalhos: `1`/`←`, `2`/`→`, `U` desfazer, `Espaço` pausar
 

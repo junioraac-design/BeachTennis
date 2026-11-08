@@ -260,17 +260,22 @@ body.tv .side-alert .tap { display: none; }
 #tv-status-host { margin-top: 8px; font-weight: 700; }
 
 /* ---------- Arena e patrocinador ---------- */
-.arena { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
-.arena .a-logo { height: clamp(28px, 6.5vmin, 60px); width: auto; max-width: 28vmin; object-fit: contain; }
-.arena .a-name { font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: clamp(.8rem, 2.8vmin, 1.7rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 44vw; color: var(--sand); }
-.brand .arena { margin: 4px 0 8px; } .final-card > .arena { margin-bottom: 10px; }
-.topbar-center { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vmin, 34px); max-width: calc(100% - 130px); }
-#game.portrait .topbar-center { flex-direction: column; gap: 0; }
-.sponsor { margin-top: auto; padding-top: 8px; width: 100%; text-align: center; }
+/* Só aparecem na transmissão (TV); no celular que marca os pontos o placar fica limpo */
+body:not(.tv) .arena, body:not(.tv) .sponsor { display: none !important; }
+.arena, .sponsor { width: 100%; text-align: center; }
+.arena { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-bottom: 6px; }
+/* mesmo quadro (cantos arredondados) para o logo da arena e para o patrocinador */
+.arena .a-logo, .sponsor .s-img {
+  max-width: 94%; max-height: clamp(56px, 19vmin, 210px); object-fit: contain;
+  border-radius: 18px; background: rgba(255,255,255,.07); padding: 8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
+}
+.arena .a-name { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: clamp(.9rem, 3.1vmin, 2rem); color: var(--sand); max-width: 96%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topbar-center { display: flex; align-items: center; justify-content: center; max-width: calc(100% - 130px); }
+.sponsor { margin-top: auto; padding-top: 8px; }
 .sponsor small { display: block; font-size: clamp(.55rem, 1.4vmin, .8rem); letter-spacing: .22em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-.sponsor .s-img { max-width: 94%; max-height: clamp(40px, 15vmin, 170px); object-fit: contain; border-radius: 10px; }
-.sponsor .s-txt { display: block; font-weight: 800; font-size: clamp(.8rem, 2.4vmin, 1.4rem); }
+.sponsor .s-txt { display: block; font-weight: 800; font-size: clamp(.8rem, 2.6vmin, 1.5rem); margin-top: 4px; }
 .final-card .sponsor { margin-top: 18px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
+.final-card > .arena { margin-bottom: 10px; }
 .center-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; }
 .img-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
 .img-pick img { height: 48px; max-width: 110px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,.08); }

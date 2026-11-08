@@ -457,6 +457,8 @@ window.addEventListener("resize", applyLayout);
 window.addEventListener("orientationchange", () => setTimeout(applyLayout, 200));
 $("ph-cam").addEventListener("click", () => { $("dlg-photo").close(); $("file-cam").click(); });
 $("ph-gal").addEventListener("click", () => { $("dlg-photo").close(); $("file-gal").click(); });
+$("ph-files").addEventListener("click", () => { $("dlg-photo").close(); $("file-files").click(); });
+$("file-files").addEventListener("change", (e) => onPhotoPicked(e.target));
 $("ph-del").addEventListener("click", () => { $("dlg-photo").close(); removePhoto(); });
 $("ph-cancel").addEventListener("click", () => $("dlg-photo").close());
 $("file-cam").addEventListener("change", (e) => onPhotoPicked(e.target));

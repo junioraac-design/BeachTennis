@@ -5,7 +5,7 @@ Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem s
 **Abrir:** `index.html` direto no navegador, ou publique a pasta (por exemplo no GitHub Pages) e use "Adicionar à tela inicial".
 
 ## Na partida
-- **Cadastro:** foto (câmera ou galeria) e nome dos 4 atletas; fotos reaproveitadas pelo nome; escolha de quem saca o Game 1
+- **Cadastro:** foto (câmera, galeria ou **Arquivos / Drive**) e nome dos 4 atletas; fotos reaproveitadas pelo nome; escolha de quem saca o Game 1
 - **Lado inicial:** escolhido na hora, como você vê a quadra (Dupla 1 à esquerda ou à direita); **⚙ Corrigir → Inverter lados na tela** espelha a qualquer momento (não afeta placar nem desfazer)
 - **Saque:** pergunta quem saca o Game 2 e depois segue a sequência sozinho (A1 → B1 → A2 → B2…). Sacador com borda verde e 🎾
 - **Pontuação:** 0, 15, 30, 40; em 40x40 o próximo ponto decide (ponto de ouro)

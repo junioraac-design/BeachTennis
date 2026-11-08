@@ -7,9 +7,10 @@ function resizeContain(file, maxW, maxH) {
   return new Promise((resolve, reject) => {
     const img = new Image(), url = URL.createObjectURL(file);
     img.onload = () => {
-      const k = Math.min(1, maxW / img.width, maxH / img.height);
+      const iw = img.naturalWidth || img.width || 320, ih = img.naturalHeight || img.height || 320;   // SVG sem tamanho
+      const k = Math.min(1, maxW / iw, maxH / ih);
       const c = document.createElement("canvas");
-      c.width = Math.max(1, Math.round(img.width * k)); c.height = Math.max(1, Math.round(img.height * k));
+      c.width = Math.max(1, Math.round(iw * k)); c.height = Math.max(1, Math.round(ih * k));
       c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url);
       resolve(file.type === "image/jpeg" ? c.toDataURL("image/jpeg", 0.88) : c.toDataURL("image/png"));
@@ -63,8 +64,10 @@ async function pickImage(input, key, maxW, maxH) {
   if (!f) return;
   try { saveBrand({ [key]: await resizeContain(f, maxW, maxH) }); } catch (_) { toast("Não foi possível ler a imagem"); }
 }
-$("file-logo").addEventListener("change", (e) => pickImage(e.target, "logo", 320, 320));
-$("file-sponsor").addEventListener("change", (e) => pickImage(e.target, "sponsor", 720, 240));
+$("s-logo-file").addEventListener("click", () => $("file-logo-f").click());
+$("s-sponsor-file").addEventListener("click", () => $("file-sponsor-f").click());
+["file-logo", "file-logo-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "logo", 320, 320)));
+["file-sponsor", "file-sponsor-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "sponsor", 720, 240)));
 $("btn-settings").addEventListener("click", refreshBrandSettings);
 $("btn-set").addEventListener("click", refreshBrandSettings);
 

@@ -243,11 +243,13 @@
     <div class="seg"><input type="radio" name="setsize" id="ss0" value="6"><label for="ss0">6 games (oficial)</label><input type="radio" name="setsize" id="ss1" value="4"><label for="ss1">4 games (curto)</label></div></div>
   <div class="opt col"><div><b>🏟 Arena</b><small>Nome e logo aparecem no placar, na tela final, na imagem de compartilhamento e na TV</small></div>
     <input type="text" id="s-arena" class="txt" maxlength="40" placeholder="Nome da arena" />
-    <div class="img-pick"><img id="s-logo-prev" alt="" hidden><button class="btn btn-secondary" id="s-logo-btn" type="button">🖼 Escolher logo</button><button class="btn btn-secondary" id="s-logo-del" type="button" hidden>Remover</button></div></div>
+    <div class="img-pick"><img id="s-logo-prev" alt="" hidden><button class="btn btn-secondary" id="s-logo-btn" type="button">🖼 Fotos</button><button class="btn btn-secondary" id="s-logo-file" type="button">📁 Arquivos / Drive</button><button class="btn btn-secondary" id="s-logo-del" type="button" hidden>Remover</button></div></div>
   <div class="opt col"><div><b>🤝 Patrocinador</b><small>Aparece no centro do placar, na tela final e na imagem de compartilhamento</small></div>
     <input type="text" id="s-sponsor-txt" class="txt" maxlength="60" placeholder="Texto do patrocinador (opcional)" />
-    <div class="img-pick"><img id="s-sponsor-prev" alt="" hidden><button class="btn btn-secondary" id="s-sponsor-btn" type="button">🖼 Escolher imagem</button><button class="btn btn-secondary" id="s-sponsor-del" type="button" hidden>Remover</button></div></div>
+    <div class="img-pick"><img id="s-sponsor-prev" alt="" hidden><button class="btn btn-secondary" id="s-sponsor-btn" type="button">🖼 Fotos</button><button class="btn btn-secondary" id="s-sponsor-file" type="button">📁 Arquivos / Drive</button><button class="btn btn-secondary" id="s-sponsor-del" type="button" hidden>Remover</button></div></div>
+  <!-- sem "accept": o celular abre o seletor de arquivos (Drive, Downloads, pastas) em vez de só a galeria -->
   <input type="file" id="file-logo" accept="image/*" hidden /><input type="file" id="file-sponsor" accept="image/*" hidden />
+  <input type="file" id="file-logo-f" hidden /><input type="file" id="file-sponsor-f" hidden />
   <div class="opt"><div><b>📺 Transmitir para a TV</b><small>A TV mostra o placar ao vivo; você marca os pontos no celular</small></div><label class="sw"><input type="checkbox" id="s-tvon"><span></span></label></div>
   <div id="tv-box" hidden>
     <small class="tvhelp">Na <b>mesma tela/aparelho</b> funciona direto (abra o link em outra aba ou janela). Para outro aparelho, cole abaixo o endereço do seu banco <b>Firebase Realtime Database</b> (veja o README).</small>
@@ -298,11 +300,13 @@
   <p>Como deseja adicionar a foto?</p>
   <button class="btn btn-primary" id="ph-cam" type="button" style="margin-top:0">📷 Tirar foto agora</button>
   <button class="btn btn-secondary" id="ph-gal" type="button">🖼 Escolher da galeria</button>
+  <button class="btn btn-secondary" id="ph-files" type="button">📁 Arquivos / Drive</button>
   <button class="btn btn-secondary" id="ph-del" type="button">🗑 Remover foto</button>
   <button class="btn btn-secondary" id="ph-cancel" type="button">Cancelar</button>
 </dialog>
 <input type="file" id="file-cam" accept="image/*" capture="user" hidden />
 <input type="file" id="file-gal" accept="image/*" hidden />
+<input type="file" id="file-files" hidden />
 
 <!-- Girar tela -->
 <dialog id="dlg-rot">

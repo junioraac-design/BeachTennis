@@ -3,7 +3,7 @@ const HOLD_MS = 500;
 const cfgNow = () => BTStore.getSettings();
 
 /* ---------- Diálogo ---------- */
-const APP_VERSION = "12 · 08/11/2026";   // mantenha igual ao CACHE de sw.js (beachtennis-v12)
+const APP_VERSION = "13 · 08/11/2026";   // mantenha igual ao CACHE de sw.js (beachtennis-v13)
 
 function openSettings() {
   $("app-ver").textContent = APP_VERSION;

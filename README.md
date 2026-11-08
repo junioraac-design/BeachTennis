@@ -1,6 +1,6 @@
 # Beach Tennis Score
 
-Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem servidor. Funciona em celular, tablet e TV (abra no navegador ou instale como app). Implementa a especificação funcional v1.0 e as melhorias da v2.0.
+Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem servidor. Funciona em celular, tablet e TV (abra no navegador ou instale como app). Implementa a especificação funcional v1.0 e, da v2.0, salvar partida, histórico, estatísticas e torneios.
 
 **Abrir:** `index.html` direto no navegador, ou publique a pasta (por exemplo no GitHub Pages) e use "Adicionar à tela inicial".
 
@@ -41,15 +41,25 @@ Você marca os pontos no celular e a TV só exibe o placar.
       ```
    3. Copie o endereço do banco (algo como `https://seu-projeto-default-rtdb.firebaseio.com`).
    4. No app: *Configurações → Transmitir para a TV*, cole o endereço e toque em **Copiar link**. Abra esse link no navegador da TV.
-   - O placar fica acessível a quem tiver o link (o código da sala é aleatório). Não há dados pessoais além de nomes e fotos dos atletas.
+   - Quem tiver o link vê o placar, os nomes e as fotos dos atletas (o código da sala é aleatório). Não compartilhe fora do jogo.
    - Alternativa sem configurar nada: transmitir a tela do celular para a TV (Chromecast, AirPlay, Miracast).
+
+### Se a TV não funcionar
+1. Em **⚙ Configurações → Transmitir para a TV**, toque em **🔍 Testar conexão**. O app diz o que está errado:
+   - **Permissão negada (401/403):** as *Regras* do Firebase não foram publicadas (veja o passo 2 acima).
+   - **Sem conexão / endereço não encontrado:** o endereço do banco está errado (deve começar com `https://` e terminar em `firebaseio.com` ou `firebasedatabase.app`) ou não há internet.
+2. A tela da TV mostra o estado da conexão abaixo de "Aguardando partida…" (✔ Conectado ou o motivo do erro).
+3. Confira em **⚙ Configurações** o número da **Versão** no rodapé. Se estiver antigo, force a atualização (veja abaixo).
+
+## Atualização do app instalado
+O app confere se há versão nova a cada abertura (com internet), mas só mostra a nova **na abertura seguinte**: abra, feche por completo e abra de novo. Para forçar no computador: **Ctrl + Shift + R**. Se continuar preso, no Chrome: *F12 → Application → Service Workers → Unregister* e *Storage → Clear site data* (isso apaga o histórico do aparelho, então exporte o backup antes). Histórico, torneios e fotos ficam só no aparelho e **não** são apagados nas atualizações.
 
 ## Instalar no celular (GitHub Pages)
 1. No GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch**, escolha a branch e a pasta `/ (root)` e salve.
 2. Abra `https://SEU-USUARIO.github.io/BeachTennis/` no Chrome (Android) ou Safari (iPhone).
 3. Menu do navegador → **Adicionar à tela inicial** (Android: *Instalar app*). Abre em tela cheia e funciona offline.
 
-Ao publicar mudanças, aumente `CACHE` em `sw.js` para os aparelhos receberem a versão nova.
+Ao publicar mudanças, aumente `CACHE` em `sw.js` e `APP_VERSION` em `js/settings.js` para os aparelhos receberem a versão nova.
 
 ## Desenvolvimento
 ```

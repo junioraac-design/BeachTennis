@@ -11,9 +11,45 @@ const tvChannel = ("BroadcastChannel" in self) ? new BroadcastChannel("beachtenn
 let tvPushTimer = null, tvPhotoKey = null;
 
 /* ---------- Anfitrião ---------- */
+/* Aceita o endereço colado de qualquer jeito (sem https, com / no fim ou com caminho) e fica só com o domínio */
+function normDb(v) {
+  v = (v || "").trim();
+  if (!v) return "";
+  if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+  try { return new URL(v).origin; } catch (_) { return ""; }
+}
 function tvConfig() {
   const c = BTStore.getSettings();
-  return { on: c.tvOn, db: (c.tvDb || "").trim().replace(/\/+$/, ""), code: c.tvCode };
+  return { on: c.tvOn, db: normDb(c.tvDb), code: c.tvCode };
+}
+
+/* O Firebase descarta null e listas vazias e transforma listas com buracos em objetos.
+   Estas funções refazem o estado completo antes de desenhar a TV. */
+const asArr = (x, n, def) => Array.from({ length: n }, (_, i) => (x && x[i] !== undefined && x[i] !== null ? x[i] : def));
+function normState(s) {
+  const log = !s.log ? [] : Array.isArray(s.log) ? s.log : Object.keys(s.log).sort((a, b) => a - b).map((k) => s.log[k]);
+  return Object.assign({}, s, {
+    names: [0, 1].map((t) => asArr(s.names && s.names[t], 2, "?")),
+    first: asArr(s.first, 2, 0),
+    second: s.second === undefined ? null : s.second,
+    target: s.target || 6,
+    games: asArr(s.games, 2, 0), points: asArr(s.points, 2, 0), tbPts: asArr(s.tbPts, 2, 0), totalPoints: asArr(s.totalPoints, 2, 0),
+    tb: !!s.tb, swapped: !!s.swapped, finished: !!s.finished,
+    winner: s.winner === undefined ? -1 : s.winner,
+    tbResult: s.tbResult ? { winner: s.tbResult.winner, score: asArr(s.tbResult.score, 2, 0) } : null,
+    log
+  });
+}
+const normPhotos = (p) => [0, 1].map((t) => [0, 1].map((i) => (p && p[t] && p[t][i]) || null));
+
+/* Estado da transmissão, mostrado nas Configurações */
+let tvStatus = "";
+function setTvStatus(msg) { tvStatus = msg; const el = $("tv-status-host"); if (el) el.textContent = msg; }
+const hhmmss = () => new Date().toLocaleTimeString("pt-BR");
+function explain(status) {
+  if (status === 401 || status === 403) return `Permissão negada (HTTP ${status}). Confira as Regras do Firebase (README).`;
+  if (status === 404) return "Banco não encontrado (HTTP 404). Confira o endereço.";
+  return `Resposta inesperada (HTTP ${status}).`;
 }
 function tvEnsureCode() {
   let { code } = tvConfig();
@@ -42,15 +78,33 @@ async function tvSend() {
   const payload = tvPayload();
   const photos = payload.idle ? null : { key: payload.key, P };
   if (tvChannel) tvChannel.postMessage({ state: payload, photos });
-  if (!db || !code) return;
+  if (!db || !code) { setTvStatus("Sem endereço do Firebase: transmitindo só para a mesma tela/aparelho."); return; }
   try {
     const url = `${db}/rooms/${code}`;
     if (photos && tvPhotoKey !== payload.key) {
       const r = await fetch(`${url}/photos.json?print=silent`, { method: "PUT", body: JSON.stringify(photos) });
-      if (r.ok) tvPhotoKey = payload.key;
+      if (r.ok) tvPhotoKey = payload.key; else return setTvStatus("❌ " + explain(r.status));
     }
-    await fetch(`${url}/state.json?print=silent`, { method: "PUT", body: JSON.stringify(payload) });
-  } catch (_) { /* sem internet: tenta de novo no próximo ponto */ }
+    const r = await fetch(`${url}/state.json?print=silent`, { method: "PUT", body: JSON.stringify(payload) });
+    setTvStatus(r.ok ? `✔ Transmitindo (último envio ${hhmmss()})` : "❌ " + explain(r.status));
+  } catch (_) { setTvStatus("❌ Sem conexão com o banco. Confira o endereço e a internet; tento de novo no próximo ponto."); }
+}
+
+/* Botão "Testar conexão": escreve e lê um valor de teste no banco */
+async function tvTest() {
+  const { db, code } = tvConfig();
+  if (!db) return setTvStatus("❌ Informe o endereço do Firebase primeiro.");
+  setTvStatus("Testando…");
+  try {
+    const url = `${db}/rooms/${tvEnsureCode()}/teste.json`;
+    const stamp = Date.now();
+    const w = await fetch(url, { method: "PUT", body: JSON.stringify({ stamp }) });
+    if (!w.ok) return setTvStatus("❌ Não consegui gravar: " + explain(w.status));
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) return setTvStatus("❌ Não consegui ler: " + explain(r.status));
+    const d = await r.json();
+    setTvStatus(d && d.stamp === stamp ? "✔ Conexão OK! Já pode abrir o link na TV." : "❌ O banco respondeu algo inesperado.");
+  } catch (_) { setTvStatus("❌ Não consegui falar com o endereço. Confira se ele está certo (começa com https://) e se há internet."); }
 }
 
 /* ---------- Visualizador (TV) ---------- */
@@ -61,9 +115,9 @@ function tvApply(state, photos) {
   if (state.ts === tvLastTs) return;
   tvLastTs = state.ts;
   const prevSwapped = S && S.swapped, prevGames = S ? S.games[0] + S.games[1] : 0;
-  S = state.S; viewFlip = state.flip || 0;
-  if (!S.target) S.target = 6;
-  if (photos && photos.key === state.key) P = photos.P;
+  S = normState(state.S); viewFlip = state.flip || 0;
+  if (photos && photos.key === state.key) P = normPhotos(photos.P);
+  else if (!Array.isArray(P) || !P[0]) P = normPhotos(null);
   T = { base: state.elapsed, runStart: state.running ? Date.now() : null, startedAt: state.startedAt };
   savedId = null; tref = null;
   if (S.finished) {
@@ -90,17 +144,24 @@ function startViewer(code, db) {
   if (code === "local" || !db) return;
   const url = `${db}/rooms/${code}`;
   let photoKey = null, photos = null;
+  const status = (t) => { const el = $("tv-status"); if (el) el.textContent = t; };
+  status("Conectando ao banco…");
   const poll = async () => {
     try {
       const r = await fetch(`${url}/state.json`, { cache: "no-store" });
-      const state = r.ok ? await r.json() : null;
-      if (state && !state.idle && state.key !== photoKey) {
+      if (!r.ok) return status("❌ " + explain(r.status));
+      const state = await r.json();
+      if (!state) return status("✔ Conectado. Aguardando o celular iniciar a partida…");
+      if (!state.idle && state.key !== photoKey) {
         const pr = await fetch(`${url}/photos.json`, { cache: "no-store" });
         const ph = pr.ok ? await pr.json() : null;
         if (ph && ph.key === state.key) { photos = ph; photoKey = state.key; }
       }
-      if (state) tvApply(state, photos);
-    } catch (_) { /* offline: mantém o último placar */ }
+      status("✔ Conectado");
+      tvApply(state, photos);
+    } catch (e) {
+      status("❌ Sem conexão com o banco (" + (e && e.message ? e.message : "erro") + "). Confira o link e a internet.");
+    }
   };
   poll(); setInterval(poll, TV_POLL_MS);
 }
@@ -111,10 +172,18 @@ function refreshTvSettings() {
   $("s-tvon").checked = c.tvOn;
   $("s-tvdb").value = c.tvDb || "";
   $("tv-box").hidden = !c.tvOn;
+  $("tv-status-host").textContent = tvStatus;
   if (c.tvOn) tvEnsureCode();
 }
 $("s-tvon").addEventListener("change", (e) => { BTStore.setSettings({ tvOn: e.target.checked }); refreshTvSettings(); if (e.target.checked) syncPush(); });
-$("s-tvdb").addEventListener("change", (e) => { BTStore.setSettings({ tvDb: e.target.value.trim() }); tvPhotoKey = null; syncPush(); });
+$("s-tvdb").addEventListener("change", (e) => {
+  const raw = e.target.value.trim(), fixed = normDb(raw);
+  if (raw && !fixed) { setTvStatus("❌ Endereço inválido. Ele deve ser parecido com https://seu-projeto-default-rtdb.firebaseio.com"); return; }
+  e.target.value = fixed;                      // mostra o endereço já corrigido
+  BTStore.setSettings({ tvDb: fixed }); tvPhotoKey = null; syncPush();
+  if (fixed) tvTest();
+});
+$("tv-test").addEventListener("click", tvTest);
 $("tv-open").addEventListener("click", () => { window.open(tvLink(!tvConfig().db), "_blank"); });
 $("tv-copy").addEventListener("click", async () => {
   const link = tvLink(false);

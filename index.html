@@ -57,7 +57,7 @@
 
 <!-- ============ AGUARDANDO (TV) ============ -->
 <main id="tvwait" class="screen">
-  <div class="tvwait-box"><div class="ball-big">🎾</div><h1>Aguardando partida…</h1><p>Código: <b id="tv-code"></b></p></div>
+  <div class="tvwait-box"><div class="ball-big">🎾</div><h1>Aguardando partida…</h1><p>Código: <b id="tv-code"></b></p><p id="tv-status" class="tvstat"></p></div>
 </main>
 
 <!-- ============ PARTIDA ============ -->
@@ -237,6 +237,8 @@
     <small class="tvhelp">Na <b>mesma tela/aparelho</b> funciona direto (abra o link em outra aba ou janela). Para outro aparelho, cole abaixo o endereço do seu banco <b>Firebase Realtime Database</b> (veja o README).</small>
     <input type="url" id="s-tvdb" class="txt" placeholder="https://seu-projeto-default-rtdb.firebaseio.com" />
     <div class="backup-row"><button class="btn btn-secondary" id="tv-open" type="button">📺 Abrir TV</button><button class="btn btn-secondary" id="tv-copy" type="button">🔗 Copiar link</button></div>
+    <button class="btn btn-secondary" id="tv-test" type="button" style="margin-top:8px">🔍 Testar conexão</button>
+    <small class="tvhelp" id="tv-status-host"></small>
   </div>
   <small class="tvhelp" style="text-align:center;margin-top:10px">Versão <b id="app-ver"></b></small>
   <button class="btn btn-primary" id="set-close" type="button">Pronto</button>

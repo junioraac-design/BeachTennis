@@ -126,6 +126,7 @@ function renderTiles() {
   for (const t of [0, 1]) {
     const box = $("tiles-" + t);
     box.textContent = "";
+    const inner = document.createElement("div"); inner.className = "tiles-in"; box.appendChild(inner);
     for (let i = 0; i < 2; i++) {
       const serving = st === t && sp === i;
       const tile = document.createElement("div");
@@ -136,7 +137,7 @@ function renderTiles() {
       nm.className = "nm" + (serving ? " srv" : "");
       nm.textContent = S.names[t][i];
       tile.append(ph, nm);
-      box.appendChild(tile);
+      inner.appendChild(tile);
     }
   }
 }
@@ -276,7 +277,10 @@ $("dlg-pick").addEventListener("cancel", (e) => e.preventDefault());
 
 /* ---------------- Girar tela ---------------- */
 const KEY_ROT = "beachtennis:rotation";
-let rotMode = safe(() => localStorage.getItem(KEY_ROT)) || "auto";   // auto | land | land-flip | port
+// Padrão: horizontal travada em celulares/tablets (toque); no computador, automático.
+// No iPhone não dá para travar a orientação do aparelho: o app gira o layout sozinho (veja applyLayout).
+const isTouch = () => { try { return matchMedia("(pointer: coarse)").matches; } catch (_) { return false; } };
+let rotMode = safe(() => localStorage.getItem(KEY_ROT)) || (isTouch() ? "land" : "auto");   // auto | land | land-flip | port
 
 function applyLayout() {
   const g = $("game");

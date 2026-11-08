@@ -80,7 +80,7 @@ button { cursor: pointer; border: 0; }
 .tile .photo { width: 17vmin; width: clamp(58px, 17vmin, 190px); height: 17vmin; height: clamp(58px, 17vmin, 190px); font-size: 5vmin; font-size: clamp(1.4rem, 5vmin, 4rem); }
 .tile .nm { font-weight: 800; text-transform: uppercase; text-align: center; font-size: 2.3vmin; font-size: clamp(.78rem, 2.3vmin, 1.5rem); line-height: 1.15; word-break: break-word; max-width: 100%; }
 .tile .nm.srv { color: var(--sand); }
-#game.portrait .tiles { flex-direction: column; gap: 6px; }
+#game.portrait .tiles-in { flex-direction: column; gap: 6px; }
 #game.portrait .tile .photo { width: 22vmin; width: clamp(56px, 22vmin, 130px); height: 22vmin; height: clamp(56px, 22vmin, 130px); }
 .point-btn { width: 100%; padding: 3.4vmin 8px; padding: clamp(14px, 3.4vmin, 34px) 8px; border-radius: 14px; background: rgba(255,255,255,.2); color: #fff; font-weight: 900; letter-spacing: .08em; font-size: 3vmin; font-size: clamp(1rem, 3vmin, 2rem); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); touch-action: manipulation; }
 .point-btn:hover { background: rgba(255,255,255,.3); } .point-btn:active { transform: scale(.97); background: rgba(255,255,255,.4); }
@@ -253,7 +253,7 @@ textarea.txt { text-transform: uppercase; font-family: inherit; }
 .tvwait-box p { color: var(--muted); font-size: 3vmin; font-size: clamp(1rem, 3vmin, 1.6rem); }
 .tvwait-box b { color: var(--sand); letter-spacing: .15em; }
 .tvhelp { display: block; color: var(--muted); font-size: .75rem; line-height: 1.4; margin: 6px 0; }
-body.tv .controls, body.tv .point-btn, body.tv #btn-rot, body.tv #btn-set { display: none !important; }
+body.tv .controls, body.tv .point-btn, body.tv #btn-set { display: none !important; }
 body.tv .team-card { justify-content: center; }
 body.tv .side-alert .tap { display: none; }
 #tv-form { margin-top: 22px; } #tv-form p { color: var(--muted); }
@@ -284,23 +284,8 @@ body:not(.tv) .arena, body:not(.tv) .sponsor { display: none !important; }
 .img-pick img { height: 48px; max-width: 110px; object-fit: contain; border-radius: 8px; background: rgba(255,255,255,.08); }
 .img-pick .btn { margin-top: 0; width: auto; flex: 1; padding: 10px 8px; font-size: .85rem; }
 
-/* ---------- Fotos e nomes preenchendo melhor o espaço (cresce com o tamanho do painel) ---------- */
-@supports (width: 1cqw) {
-  .team-card { container-type: size; }
-  .tile .photo { width: min(40cqw, 33cqh, 300px); height: min(40cqw, 33cqh, 300px); font-size: min(15cqw, 12cqh); }
-  .tile .nm { font-size: clamp(.8rem, min(6.6cqw, 5.4cqh), 2.4rem); }
-  .team-title { font-size: clamp(.75rem, min(5cqw, 3.4cqh), 1.4rem); }
-  #game.portrait .tile .photo { width: min(62cqw, 25cqh); height: min(62cqw, 25cqh); font-size: min(22cqw, 9cqh); }
-  #game.portrait .tile .nm { font-size: clamp(.75rem, min(9.5cqw, 5cqh), 1.7rem); }
-}
-/* painel mais alto que largo (TV/tablet em pé): atletas empilhados, fotos maiores */
-@supports (width: 1cqw) {
-  @container (max-aspect-ratio: 1/1) {
-    .tiles { flex-direction: column; gap: clamp(6px, 2cqh, 18px); padding-top: 1.5cqh; }
-    .tile .photo { width: min(60cqw, 27cqh, 320px); height: min(60cqw, 27cqh, 320px); font-size: min(20cqw, 9cqh); }
-    .tile .nm { font-size: clamp(.8rem, min(9cqw, 5cqh), 2.2rem); }
-  }
-}
+
+
 
 /* ---------- Arenas e paleta ---------- */
 .arena-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,.2); border-radius: 14px; padding: 8px 10px; }
@@ -330,3 +315,43 @@ body:not(.tv) .arena, body:not(.tv) .sponsor { display: none !important; }
 .pal-preview .pv.t2 { background: linear-gradient(160deg, var(--t2), var(--t2-dark)); }
 .pal-preview .pv.mid { align-self: center; color: var(--sand); font-size: 1.1rem; padding: 0 8px; }
 #ae-warn { color: var(--sand); margin-top: 8px; display: block; }
+
+/* ---------- Quadro central: tudo cabe na altura do painel (sem sobrepor) ---------- */
+@supports (width: 1cqw) {
+  #game:not(.portrait) .center { container-type: size; overflow: hidden; }
+  #game:not(.portrait) .center .arena .a-logo, #game:not(.portrait) .center .sponsor .s-img { max-height: min(15cqh, 34cqw); }
+  #game:not(.portrait) .center .arena { gap: 2px; padding-bottom: 2px; }
+  #game:not(.portrait) .center .arena .a-name { font-size: clamp(.62rem, min(5cqh, 7.5cqw), 1.9rem); }
+  #game:not(.portrait) .center .sponsor { padding-top: 2px; }
+  #game:not(.portrait) .center .sponsor small { font-size: clamp(.45rem, min(2.6cqh, 3.4cqw), .8rem); margin-bottom: 1px; }
+  #game:not(.portrait) .center .sponsor .s-txt { font-size: clamp(.62rem, min(4.6cqh, 7cqw), 1.5rem); margin-top: 1px; }
+  #game:not(.portrait) .center .pts { font-size: min(19cqh, 25cqw); }
+  #game:not(.portrait) .center .games { font-size: min(11cqh, 15cqw); }
+  #game:not(.portrait) .center .lbl { font-size: clamp(.5rem, min(3.2cqh, 4cqw), 1.1rem); }
+  #game:not(.portrait) .center .gamenum { font-size: clamp(.5rem, min(3.4cqh, 4.4cqw), 1rem); }
+}
+/* retrato: logos menores para sobrar espaço às duplas */
+#game.portrait .arena .a-logo, #game.portrait .sponsor .s-img { max-height: clamp(34px, 10vmin, 110px); padding: 4px; border-radius: 14px; }
+#game.portrait .arena .a-name { font-size: clamp(.72rem, 3.4vmin, 1.2rem); }
+#game.portrait .sponsor { padding-top: 4px; }
+
+/* ---------- Fotos e nomes: ocupam exatamente o espaço entre o título e o botão (nunca se sobrepõem) ----------
+   .tiles é o espaço que sobra no painel; fotos e nomes são dimensionados a partir dele.
+   Lado a lado ou empilhados: o que der fotos maiores naquele espaço. */
+.tiles-in { display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; height: 100%; }
+@supports (width: 1cqw) {
+  .team-card { container: card / size; }
+  .tiles { container: tiles / size; display: block; }
+  .tiles-in { gap: 4px; }
+  .team-title { font-size: clamp(.7rem, min(5cqw, 3.4cqh), 1.4rem); }
+  .tile { gap: 3px; }
+  /* lado a lado */
+  .tile .photo { width: min(44cqw, 58cqh, 300px); height: min(44cqw, 58cqh, 300px); font-size: min(16cqw, 21cqh); }
+  .tile .nm { font-size: clamp(.66rem, min(7cqw, 9.5cqh), 2.4rem); line-height: 1.1; }
+  /* espaço bem mais alto que largo: empilhados */
+  @container tiles (max-aspect-ratio: 7/10) {
+    .tiles-in { flex-direction: column; gap: 4px; }
+    .tile .photo { width: min(62cqw, 31cqh, 320px); height: min(62cqw, 31cqh, 320px); font-size: min(22cqw, 11cqh); }
+    .tile .nm { font-size: clamp(.66rem, min(10cqw, 6cqh), 2.2rem); }
+  }
+}

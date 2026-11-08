@@ -299,7 +299,7 @@ async function setRotation(mode) {
   try {
     if (mode === "auto") o && o.unlock && o.unlock();
     else if (o && o.lock) {
-      if (!document.fullscreenElement && !matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) await document.documentElement.requestFullscreen?.();
+      if (!document.fullscreenElement && !matchMedia("(display-mode: fullscreen), (display-mode: standalone)").matches) await (document.documentElement.requestFullscreen && document.documentElement.requestFullscreen());
       await o.lock(mode === "port" ? "portrait" : mode === "land-flip" ? "landscape-secondary" : "landscape");
     }
   } catch (_) { /* sem suporte: o giro por CSS (applyLayout) cuida disso */ }
@@ -312,7 +312,12 @@ async function requestWake() {
   try { if ("wakeLock" in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => (wakeLock = null)); } } catch (_) {}
 }
 function releaseWake() { try { wakeLock && wakeLock.release(); } catch (_) {} wakeLock = null; }
-function toggleFs() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.().catch(() => {}); }
+function toggleFs() {
+  const el = document.documentElement;
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  if (el.requestFullscreen) { const r = el.requestFullscreen(); if (r && r.catch) r.catch(() => {}); }
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();   // TVs e navegadores antigos
+}
 
 /* ---------------- Cadastro: fotos e nomes ---------------- */
 function resizeImage(file, size = 240) {

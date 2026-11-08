@@ -14,7 +14,7 @@ body {
 }
 button, input { font: inherit; color: inherit; }
 button { cursor: pointer; border: 0; }
-.screen { display: none; height: 100dvh; width: 100%; }
+.screen { display: none; height: 100vh; height: 100dvh; width: 100%; }
 .screen.active { display: flex; }
 .num { font-variant-numeric: tabular-nums; }
 
@@ -34,7 +34,7 @@ button { cursor: pointer; border: 0; }
   transition: border-color .2s, box-shadow .2s;
 }
 .photo.serving { border-color: var(--green); box-shadow: 0 0 0 4px rgba(46,226,122,.35), 0 0 28px rgba(46,226,122,.6); }
-.photo .ball { position: absolute; top: -10%; right: -10%; font-size: clamp(1.4rem, 4.6vmin, 3rem); line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+.photo .ball { position: absolute; top: -10%; right: -10%; font-size: 4.6vmin; font-size: clamp(1.4rem, 4.6vmin, 3rem); line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
 
 /* ---------- Setup ---------- */
 #setup { align-items: flex-start; justify-content: center; padding: 18px; overflow-y: auto; }
@@ -63,11 +63,11 @@ button { cursor: pointer; border: 0; }
 
 /* ---------- Jogo ---------- */
 #game { flex-direction: column; }
-.topbar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 14px 0; padding-top: max(8px, env(safe-area-inset-top)); position: relative; min-height: 56px; }
-.timer { font-size: clamp(1.8rem, 6vmin, 3.4rem); font-weight: 800; letter-spacing: .06em; }
+.topbar { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 14px 0; padding-top: 8px; padding-top: max(8px, env(safe-area-inset-top)); position: relative; min-height: 56px; }
+.timer { font-size: 6vmin; font-size: clamp(1.8rem, 6vmin, 3.4rem); font-weight: 800; letter-spacing: .06em; }
 .timer.paused { color: var(--muted); }
 .timer.paused::after { content: " ⏸"; font-size: .6em; }
-.icon-btn { position: absolute; right: 12px; top: max(8px, env(safe-area-inset-top)); width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1); font-size: 1.1rem; }
+.icon-btn { position: absolute; right: 12px; top: 8px; top: max(8px, env(safe-area-inset-top)); width: 42px; height: 42px; border-radius: 12px; background: rgba(255,255,255,.1); font-size: 1.1rem; }
 
 .stage { flex: 1; min-height: 0; display: grid; gap: 12px; padding: 8px 12px 10px; grid-template-columns: 1fr 1.1fr 1fr; grid-template-areas: "t1 center t2"; }
 #game.portrait .stage { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; grid-template-areas: "center center" "t1 t2"; }
@@ -77,51 +77,51 @@ button { cursor: pointer; border: 0; }
 .team-title { font-size: .8rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; opacity: .9; }
 .tiles { flex: 1; min-height: 0; display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%; }
 .tile { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; flex: 1; }
-.tile .photo { width: clamp(58px, 17vmin, 190px); height: clamp(58px, 17vmin, 190px); font-size: clamp(1.4rem, 5vmin, 4rem); }
-.tile .nm { font-weight: 800; text-transform: uppercase; text-align: center; font-size: clamp(.78rem, 2.3vmin, 1.5rem); line-height: 1.15; word-break: break-word; max-width: 100%; }
+.tile .photo { width: 17vmin; width: clamp(58px, 17vmin, 190px); height: 17vmin; height: clamp(58px, 17vmin, 190px); font-size: 5vmin; font-size: clamp(1.4rem, 5vmin, 4rem); }
+.tile .nm { font-weight: 800; text-transform: uppercase; text-align: center; font-size: 2.3vmin; font-size: clamp(.78rem, 2.3vmin, 1.5rem); line-height: 1.15; word-break: break-word; max-width: 100%; }
 .tile .nm.srv { color: var(--sand); }
 #game.portrait .tiles { flex-direction: column; gap: 6px; }
-#game.portrait .tile .photo { width: clamp(56px, 22vmin, 130px); height: clamp(56px, 22vmin, 130px); }
-.point-btn { width: 100%; padding: clamp(14px, 3.4vmin, 34px) 8px; border-radius: 14px; background: rgba(255,255,255,.2); color: #fff; font-weight: 900; letter-spacing: .08em; font-size: clamp(1rem, 3vmin, 2rem); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); touch-action: manipulation; }
+#game.portrait .tile .photo { width: 22vmin; width: clamp(56px, 22vmin, 130px); height: 22vmin; height: clamp(56px, 22vmin, 130px); }
+.point-btn { width: 100%; padding: 3.4vmin 8px; padding: clamp(14px, 3.4vmin, 34px) 8px; border-radius: 14px; background: rgba(255,255,255,.2); color: #fff; font-weight: 900; letter-spacing: .08em; font-size: 3vmin; font-size: clamp(1rem, 3vmin, 2rem); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); touch-action: manipulation; }
 .point-btn:hover { background: rgba(255,255,255,.3); } .point-btn:active { transform: scale(.97); background: rgba(255,255,255,.4); }
 
 .center { grid-area: center; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; background: rgba(0,0,0,.22); border-radius: var(--radius); padding: 10px; min-height: 0; }
-.lbl { font-size: clamp(.7rem, 2vmin, 1.2rem); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+.lbl { font-size: 2vmin; font-size: clamp(.7rem, 2vmin, 1.2rem); letter-spacing: .22em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
 .lbl.hot { color: var(--sand); animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: .55; } }
-.pts { font-size: clamp(3rem, 15vmin, 11rem); font-weight: 900; line-height: 1; white-space: nowrap; }
-.games { font-size: clamp(2rem, 9vmin, 6.5rem); font-weight: 800; line-height: 1.05; white-space: nowrap; }
+.pts { font-size: 15vmin; font-size: clamp(3rem, 15vmin, 11rem); font-weight: 900; line-height: 1; white-space: nowrap; }
+.games { font-size: 9vmin; font-size: clamp(2rem, 9vmin, 6.5rem); font-weight: 800; line-height: 1.05; white-space: nowrap; }
 .pts .x, .games .x { color: var(--muted); font-weight: 600; font-size: .6em; padding: 0 .2em; }
 .c1 { color: #7fd3f5; } .c2 { color: #ff9c85; }
-.gamenum { font-size: clamp(.75rem, 2vmin, 1.1rem); color: var(--muted); }
-#game.portrait .pts { font-size: clamp(3rem, 17vmin, 7rem); }
-#game.portrait .games { font-size: clamp(2rem, 11vmin, 4.5rem); }
+.gamenum { font-size: 2vmin; font-size: clamp(.75rem, 2vmin, 1.1rem); color: var(--muted); }
+#game.portrait .pts { font-size: 17vmin; font-size: clamp(3rem, 17vmin, 7rem); }
+#game.portrait .games { font-size: 11vmin; font-size: clamp(2rem, 11vmin, 4.5rem); }
 
 .controls { display: flex; gap: 10px; padding: 0 12px calc(12px + var(--safe-b)); }
-.controls button { flex: 1; padding: 13px 8px; border-radius: 14px; background: rgba(255,255,255,.1); font-weight: 800; font-size: clamp(.8rem, 2.2vmin, 1.2rem); }
+.controls button { flex: 1; padding: 13px 8px; border-radius: 14px; background: rgba(255,255,255,.1); font-weight: 800; font-size: 2.2vmin; font-size: clamp(.8rem, 2.2vmin, 1.2rem); }
 .controls button:hover { background: rgba(255,255,255,.18); }
 
 .topbar .icon-btn.left { right: auto; left: 12px; }
 /* Giro por CSS: usado quando o navegador não permite travar a orientação */
-#game.rotated { position: fixed; top: 0; left: 0; width: 100dvh; height: 100dvw; transform-origin: top left; transform: translateX(100dvw) rotate(90deg); z-index: 5; }
-#game.rotated.ccw { transform: translateY(100dvh) rotate(-90deg); }
-html.rot dialog { transform: rotate(90deg); max-width: min(92dvh, 420px); max-height: 92dvw; }
+#game.rotated { position: fixed; top: 0; left: 0; width: 100vh; width: 100dvh; height: 100dvw; transform-origin: top left; transform: translateX(100dvw) rotate(90deg); z-index: 5; }
+#game.rotated.ccw { transform: translateY(100vh) rotate(-90deg); transform: translateY(100dvh) rotate(-90deg); }
+html.rot dialog { transform: rotate(90deg); max-width: 92vh; max-width: min(92dvh, 420px); max-height: 92dvw; }
 html.rot.ccw dialog { transform: rotate(-90deg); }
 html.rot .side-alert .box { transform: rotate(90deg); }
 html.rot.ccw .side-alert .box { transform: rotate(-90deg); }
-html.rot .toast { bottom: auto; top: 50%; left: 96px; transform: translate(-50%, -50%) rotate(90deg); max-width: 80dvh; }
+html.rot .toast { bottom: auto; top: 50%; left: 96px; transform: translate(-50%, -50%) rotate(90deg); max-width: 80vh; max-width: 80dvh; }
 html.rot.ccw .toast { left: auto; right: 96px; transform: translate(50%, -50%) rotate(-90deg); }
 html.rot .toast:not(.show) { opacity: 0; }
 
 /* ---------- Alerta de troca de lado ---------- */
-.side-alert { position: fixed; inset: 0; z-index: 30; display: none; place-items: center; background: rgba(5,15,28,.82); backdrop-filter: blur(4px); cursor: pointer; }
+.side-alert { position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0; z-index: 30; display: none; place-items: center; background: rgba(5,15,28,.82); backdrop-filter: blur(4px); cursor: pointer; }
 .side-alert.show { display: grid; animation: pop .25s; }
 @keyframes pop { from { opacity: 0; transform: scale(.94); } }
 .side-alert .box { text-align: center; padding: 24px; }
-.side-alert .big { font-size: clamp(2.2rem, 9vmin, 6rem); font-weight: 900; color: var(--sand); letter-spacing: .04em; }
+.side-alert .big { font-size: 9vmin; font-size: clamp(2.2rem, 9vmin, 6rem); font-weight: 900; color: var(--sand); letter-spacing: .04em; }
 .side-alert .big span { display: inline-block; animation: spin 1.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.side-alert .sub { margin-top: 8px; font-size: clamp(1rem, 3.4vmin, 2rem); color: var(--ink); }
+.side-alert .sub { margin-top: 8px; font-size: 3.4vmin; font-size: clamp(1rem, 3.4vmin, 2rem); color: var(--ink); }
 .side-alert .tap { margin-top: 18px; font-size: .8rem; color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
 
 /* ---------- Final ---------- */
@@ -129,9 +129,9 @@ html.rot .toast:not(.show) { opacity: 0; }
 .final-card { width: 100%; max-width: 640px; margin: auto; background: rgba(21,56,90,.82); border-radius: 24px; padding: 26px 20px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
 .final-card h1 { margin: 0; font-size: .95rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
 .winners { display: flex; justify-content: center; gap: 14px; margin: 14px 0 8px; }
-.winners .photo { width: clamp(84px, 24vw, 150px); height: clamp(84px, 24vw, 150px); font-size: 2.6rem; border-color: var(--sand); }
-.winner-name { font-size: clamp(1.4rem, 5vw, 2.2rem); font-weight: 900; text-transform: uppercase; color: var(--sand); margin: 6px 0 10px; line-height: 1.15; }
-.final-score { font-size: clamp(2.6rem, 10vw, 4.4rem); font-weight: 900; line-height: 1; }
+.winners .photo { width: 24vw; width: clamp(84px, 24vw, 150px); height: 24vw; height: clamp(84px, 24vw, 150px); font-size: 2.6rem; border-color: var(--sand); }
+.winner-name { font-size: 5vw; font-size: clamp(1.4rem, 5vw, 2.2rem); font-weight: 900; text-transform: uppercase; color: var(--sand); margin: 6px 0 10px; line-height: 1.15; }
+.final-score { font-size: 10vw; font-size: clamp(2.6rem, 10vw, 4.4rem); font-weight: 900; line-height: 1; }
 .final-time { margin: 10px 0 4px; color: var(--muted); }
 .final-time b { color: var(--ink); font-size: 1.3rem; letter-spacing: .05em; }
 .tb-box { margin: 14px 0; background: rgba(242,200,121,.1); border: 1px solid rgba(242,200,121,.4); border-radius: 14px; padding: 10px; }
@@ -145,7 +145,7 @@ html.rot .toast:not(.show) { opacity: 0; }
 .g-row .sc em { font-style: normal; color: var(--sand); }
 
 /* ---------- Dialogs / Toast ---------- */
-dialog { border: 0; border-radius: 20px; padding: 22px; background: var(--card); color: var(--ink); max-width: 92vw; width: 400px; box-shadow: 0 30px 80px rgba(0,0,0,.6); max-height: 92dvh; overflow-y: auto; }
+dialog { border: 0; border-radius: 20px; padding: 22px; background: var(--card); color: var(--ink); max-width: 92vw; width: 400px; box-shadow: 0 30px 80px rgba(0,0,0,.6); max-height: 92vh; max-height: 92dvh; overflow-y: auto; }
 dialog::backdrop { background: rgba(0,0,0,.65); backdrop-filter: blur(3px); }
 dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted); }
 .pick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -209,14 +209,14 @@ dialog h3 { margin: 0 0 6px; } dialog p { margin: 0 0 14px; color: var(--muted);
 #dlg-settings .opt small { display: block; color: var(--muted); font-size: .75rem; margin-top: 2px; line-height: 1.3; }
 .sw { position: relative; flex: none; width: 52px; height: 30px; }
 .sw input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 1; }
-.sw span { position: absolute; inset: 0; border-radius: 99px; background: rgba(255,255,255,.18); transition: .2s; }
+.sw span { position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; border-radius: 99px; background: rgba(255,255,255,.18); transition: .2s; }
 .sw span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: .2s; }
 .sw input:checked + span { background: var(--green); }
 .sw input:checked + span::after { transform: translateX(22px); }
 .sw input:focus-visible + span { outline: 2px solid #fff; }
 /* segurar para marcar ponto */
 .point-btn { position: relative; overflow: hidden; }
-.point-btn.holding::after { content: ""; position: absolute; inset: 0; background: rgba(255,255,255,.45); transform-origin: left; animation: holdfill var(--hold, .5s) linear forwards; }
+.point-btn.holding::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0; background: rgba(255,255,255,.45); transform-origin: left; animation: holdfill var(--hold, .5s) linear forwards; }
 @keyframes holdfill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
 /* ---------- Torneios ---------- */
@@ -249,17 +249,17 @@ textarea.txt { text-transform: uppercase; font-family: inherit; }
 /* ---------- TV ao vivo ---------- */
 #tvwait { align-items: center; justify-content: center; text-align: center; }
 .tvwait-box .ball-big { font-size: 4rem; }
-.tvwait-box h1 { font-size: clamp(1.6rem, 6vmin, 3.4rem); margin: 8px 0; }
-.tvwait-box p { color: var(--muted); font-size: clamp(1rem, 3vmin, 1.6rem); }
+.tvwait-box h1 { font-size: 6vmin; font-size: clamp(1.6rem, 6vmin, 3.4rem); margin: 8px 0; }
+.tvwait-box p { color: var(--muted); font-size: 3vmin; font-size: clamp(1rem, 3vmin, 1.6rem); }
 .tvwait-box b { color: var(--sand); letter-spacing: .15em; }
 .tvhelp { display: block; color: var(--muted); font-size: .75rem; line-height: 1.4; margin: 6px 0; }
 body.tv .controls, body.tv .point-btn, body.tv #btn-rot, body.tv #btn-set { display: none !important; }
 body.tv .team-card { justify-content: center; }
 body.tv .side-alert .tap { display: none; }
 #tv-form { margin-top: 22px; } #tv-form p { color: var(--muted); }
-#tv-form input { font-size: clamp(1.4rem, 5vmin, 3rem); text-align: center; text-transform: uppercase; letter-spacing: .2em; width: min(80vw, 520px); padding: 12px; border-radius: 14px; border: 2px solid var(--sand); background: rgba(255,255,255,.08); color: var(--ink); outline: none; }
-#tv-form button { display: block; margin: 16px auto 0; font-size: clamp(1.1rem, 3.4vmin, 2rem); padding: 12px 36px; border-radius: 14px; background: var(--sand); color: #2a1d00; font-weight: 800; }
-.tvstat { font-size: clamp(.85rem, 2.4vmin, 1.2rem); max-width: 80vw; margin: 14px auto 0; }
+#tv-form input { font-size: 5vmin; font-size: clamp(1.4rem, 5vmin, 3rem); text-align: center; text-transform: uppercase; letter-spacing: .2em; width: 80vw; width: min(80vw, 520px); padding: 12px; border-radius: 14px; border: 2px solid var(--sand); background: rgba(255,255,255,.08); color: var(--ink); outline: none; }
+#tv-form button { display: block; margin: 16px auto 0; font-size: 3.4vmin; font-size: clamp(1.1rem, 3.4vmin, 2rem); padding: 12px 36px; border-radius: 14px; background: var(--sand); color: #2a1d00; font-weight: 800; }
+.tvstat { font-size: 2.4vmin; font-size: clamp(.85rem, 2.4vmin, 1.2rem); max-width: 80vw; margin: 14px auto 0; }
 #tv-status-host { margin-top: 8px; font-weight: 700; }
 
 /* ---------- Arena e patrocinador ---------- */
@@ -269,14 +269,14 @@ body:not(.tv) .arena, body:not(.tv) .sponsor { display: none !important; }
 .arena { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-bottom: 6px; }
 /* mesmo quadro (cantos arredondados) para o logo da arena e para o patrocinador */
 .arena .a-logo, .sponsor .s-img {
-  max-width: 94%; max-height: clamp(56px, 19vmin, 210px); object-fit: contain;
+  max-width: 94%; max-height: 19vmin; max-height: clamp(56px, 19vmin, 210px); object-fit: contain;
   border-radius: 18px; background: rgba(255,255,255,.07); padding: 8px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
 }
-.arena .a-name { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: clamp(.9rem, 3.1vmin, 2rem); color: var(--sand); max-width: 96%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arena .a-name { font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 3.1vmin; font-size: clamp(.9rem, 3.1vmin, 2rem); color: var(--sand); max-width: 96%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .topbar-center { display: flex; align-items: center; justify-content: center; max-width: calc(100% - 130px); }
 .sponsor { margin-top: auto; padding-top: 8px; }
-.sponsor small { display: block; font-size: clamp(.55rem, 1.4vmin, .8rem); letter-spacing: .22em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
-.sponsor .s-txt { display: block; font-weight: 800; font-size: clamp(.8rem, 2.6vmin, 1.5rem); margin-top: 4px; }
+.sponsor small { display: block; font-size: 1.4vmin; font-size: clamp(.55rem, 1.4vmin, .8rem); letter-spacing: .22em; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.sponsor .s-txt { display: block; font-weight: 800; font-size: 2.6vmin; font-size: clamp(.8rem, 2.6vmin, 1.5rem); margin-top: 4px; }
 .final-card .sponsor { margin-top: 18px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px; }
 .final-card > .arena { margin-bottom: 10px; }
 .center-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; }

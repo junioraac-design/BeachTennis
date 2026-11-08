@@ -58,6 +58,9 @@ Você marca os pontos no celular e a TV só exibe o placar.
 - **Link menor:** o endereço do banco vai no link em forma curta (`db=p:seu-projeto`). Para o link levar **só o código** (ex.: `usuario.github.io/BeachTennis/?tv=ARENASOL`), preencha `window.BT_DEFAULT_DB` no arquivo `config.js` com o endereço do seu banco e publique. Faça isso **só com o modo seguro ligado**, porque o arquivo fica público.
 - **Colar em vez de digitar:** em Android TV e Google TV, o app *Google TV* (controle remoto no celular) permite digitar e colar texto pelo teclado do celular. Smart TVs Samsung e LG têm recurso parecido nos apps SmartThings e ThinQ.
 
+### Se a TV mostrar "Servidor não encontrado"
+Não é erro do app: a TV não conseguiu chegar ao site. Teste abrir `google.com` na TV. Se também não abrir, confira o Wi-Fi da TV. Se abrir o Google mas não o app, troque o **DNS** da TV (Samsung: *Configurações → Geral → Rede → Status da rede → Configurações de IP → Configuração de DNS → Inserir manualmente* e use `8.8.8.8`). Navegadores de TV muito antigos podem não abrir sites https modernos: nesse caso use **Smart View / Chromecast / AirPlay** (espelhar o celular) ou um tablet/notebook ligado por HDMI.
+
 ### Se a TV não funcionar
 1. Em **⚙ Configurações → Transmitir para a TV**, toque em **🔍 Testar conexão**. O app diz o que está errado:
    - **Permissão negada (401/403):** as *Regras* do Firebase não foram publicadas (veja o passo 2 acima). No modo seguro, publique as regras seguras e, se a sala for de outro aparelho, use **Gerar novo link**.

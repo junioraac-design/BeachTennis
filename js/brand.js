@@ -1,5 +1,6 @@
-/* Arena e patrocinador: nome, logo e imagem do patrocinador no placar, na tela final, no cadastro,
-   na imagem de compartilhamento e na TV. */
+/* Identidade visual: tema (cores da arena), arena (nome/logo) e patrocinador da partida.
+   - O tema vale no celular e na TV.
+   - Nome/logo da arena e patrocinador aparecem só na transmissão (TV) e na imagem de compartilhamento. */
 let curBrand = BTStore.getBrand();
 
 /* Redimensiona mantendo a proporção; JPEG continua JPEG, o resto vira PNG (preserva transparência) */
@@ -20,9 +21,24 @@ function resizeContain(file, maxW, maxH) {
   });
 }
 
-/* Mostra (ou esconde) a arena e o patrocinador em todos os lugares da tela */
+/* Aplica as cores: paleta nula/padrão remove os ajustes e volta ao visual original */
+const THEME_VARS = ["--bg", "--bg-2", "--card", "--sand", "--t1", "--t1-dark", "--t2", "--t2-dark", "--c1", "--c2", "--muted"];
+function applyTheme(palette) {
+  const root = document.documentElement.style, meta = document.querySelector('meta[name="theme-color"]');
+  if (!palette || BTPalette.isDefault(palette)) {
+    THEME_VARS.forEach((v) => root.removeProperty(v));
+    if (meta) meta.setAttribute("content", BTPalette.DEFAULT.bg);
+    return;
+  }
+  const t = BTPalette.theme(palette);
+  Object.keys(t.vars).forEach((k) => root.setProperty(k, t.vars[k]));
+  if (meta) meta.setAttribute("content", t.fixed.bg);
+}
+
+/* Mostra (ou esconde) arena e patrocinador (o CSS só os exibe na TV) e aplica as cores */
 function applyBrand(b) {
   curBrand = b || BTStore.getBrand();
+  applyTheme(curBrand.palette);
   const hasArena = !!(curBrand.name || curBrand.logo);
   document.querySelectorAll(".arena").forEach((el) => {
     el.hidden = !hasArena;
@@ -37,38 +53,33 @@ function applyBrand(b) {
     img.hidden = !curBrand.sponsor; if (curBrand.sponsor) img.src = curBrand.sponsor; else img.removeAttribute("src");
     txt.textContent = curBrand.sponsorText || "";
   });
+  const lbl = $("sponsor-label");
+  if (lbl) lbl.textContent = curBrand.sponsorText || (curBrand.sponsor ? "imagem escolhida" : "nenhum");
 }
 
-/* ---------- Configurações ---------- */
-function refreshBrandSettings() {
+/* ---------- Patrocinador da partida (sem cadastro) ---------- */
+function refreshSponsorDialog() {
   const b = BTStore.getBrand();
-  $("s-arena").value = b.name; $("s-sponsor-txt").value = b.sponsorText;
-  for (const [prev, del, src] of [["s-logo-prev", "s-logo-del", b.logo], ["s-sponsor-prev", "s-sponsor-del", b.sponsor]]) {
-    $(prev).hidden = !src; $(del).hidden = !src; if (src) $(prev).src = src;
-  }
+  $("s-sponsor-txt").value = b.sponsorText;
+  $("s-sponsor-prev").hidden = !b.sponsor; if (b.sponsor) $("s-sponsor-prev").src = b.sponsor;
+  $("s-sponsor-del").hidden = !(b.sponsor || b.sponsorText);
 }
-function saveBrand(patch) {
+function saveSponsor(patch) {
   const b = BTStore.setBrand(patch);
   if (!b) { toast("Sem espaço para salvar a imagem. Use uma imagem menor."); return; }
-  applyBrand(b); refreshBrandSettings();
+  applyBrand(b); refreshSponsorDialog();
   if (typeof syncPush === "function") syncPush();
 }
-$("s-arena").addEventListener("change", (e) => saveBrand({ name: e.target.value.trim() }));
-$("s-sponsor-txt").addEventListener("change", (e) => saveBrand({ sponsorText: e.target.value.trim() }));
-$("s-logo-btn").addEventListener("click", () => $("file-logo").click());
+$("sponsor-open").addEventListener("click", () => { refreshSponsorDialog(); $("dlg-sponsor").showModal(); });
+$("sponsor-close").addEventListener("click", () => $("dlg-sponsor").close());
+$("s-sponsor-txt").addEventListener("change", (e) => saveSponsor({ sponsorText: e.target.value.trim() }));
 $("s-sponsor-btn").addEventListener("click", () => $("file-sponsor").click());
-$("s-logo-del").addEventListener("click", () => saveBrand({ logo: null }));
-$("s-sponsor-del").addEventListener("click", () => saveBrand({ sponsor: null }));
-async function pickImage(input, key, maxW, maxH) {
-  const f = input.files[0]; input.value = "";
-  if (!f) return;
-  try { saveBrand({ [key]: await resizeContain(f, maxW, maxH) }); } catch (_) { toast("Não foi possível ler a imagem"); }
-}
-$("s-logo-file").addEventListener("click", () => $("file-logo-f").click());
 $("s-sponsor-file").addEventListener("click", () => $("file-sponsor-f").click());
-["file-logo", "file-logo-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "logo", 480, 480)));
-["file-sponsor", "file-sponsor-f"].forEach((id) => $(id).addEventListener("change", (e) => pickImage(e.target, "sponsor", 960, 320)));
-$("btn-settings").addEventListener("click", refreshBrandSettings);
-$("btn-set").addEventListener("click", refreshBrandSettings);
+$("s-sponsor-del").addEventListener("click", () => saveSponsor({ sponsor: null, sponsorText: "" }));
+["file-sponsor", "file-sponsor-f"].forEach((id) => $(id).addEventListener("change", async (e) => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  try { saveSponsor({ sponsor: await resizeContain(f, 960, 320) }); } catch (_) { toast("Não foi possível ler a imagem"); }
+}));
 
 applyBrand(curBrand);

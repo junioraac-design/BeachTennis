@@ -95,7 +95,7 @@ function matchCard(m) {
   const b = document.createElement("button");
   b.type = "button"; b.className = "m-card";
   const top = document.createElement("div"); top.className = "top";
-  const d = document.createElement("span"); d.textContent = fmtDate(m.date) + " · " + fmt(m.duration);
+  const d = document.createElement("span"); d.textContent = fmtDate(m.date) + " · " + fmt(m.duration) + (m.arena ? " · " + m.arena : "");
   top.appendChild(d);
   const tags = document.createElement("span");
   if (m.tbResult) { const t = document.createElement("span"); t.className = "badge"; t.textContent = "tie-break"; tags.appendChild(t); }

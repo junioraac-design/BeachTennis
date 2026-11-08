@@ -1,6 +1,6 @@
 // Cache simples para funcionar offline. Aumente a versão ao publicar mudanças.
-const CACHE = "beachtennis-v18";
-const FILES = ["./", "./index.html", "./css/style.css", "./js/engine.js", "./js/tourney-logic.js", "./js/store.js", "./js/stats.js", "./js/app.js", "./js/share.js", "./js/history.js", "./js/settings.js", "./js/brand.js", "./js/tourneys.js", "./js/sync.js", "./config.js", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-maskable.png"];
+const CACHE = "beachtennis-v19";
+const FILES = ["./", "./index.html", "./css/style.css", "./js/engine.js", "./js/tourney-logic.js", "./js/store.js", "./js/stats.js", "./js/app.js", "./js/share.js", "./js/history.js", "./js/settings.js", "./js/palette.js", "./js/brand.js", "./js/arenas.js", "./js/tourneys.js", "./js/sync.js", "./config.js", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-maskable.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

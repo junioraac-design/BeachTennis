@@ -1,5 +1,5 @@
 :root {
-  --bg: #0b1f33; --bg-2: #123150; --card: #15385a;
+  --bg: #0b1f33; --bg-2: #123150; --card: #15385a; --c1: #7fd3f5; --c2: #ff9c85;
   --ink: #f4f1ea; --muted: #9db4c9; --sand: #f2c879;
   --t1: #1d9bd1; --t1-dark: #0f6f99; --t2: #ef6a4c; --t2-dark: #b8452b;
   --green: #2ee27a; --danger: #e5484d; --radius: 18px;
@@ -92,7 +92,7 @@ button { cursor: pointer; border: 0; }
 .pts { font-size: 15vmin; font-size: clamp(3rem, 15vmin, 11rem); font-weight: 900; line-height: 1; white-space: nowrap; }
 .games { font-size: 9vmin; font-size: clamp(2rem, 9vmin, 6.5rem); font-weight: 800; line-height: 1.05; white-space: nowrap; }
 .pts .x, .games .x { color: var(--muted); font-weight: 600; font-size: .6em; padding: 0 .2em; }
-.c1 { color: #7fd3f5; } .c2 { color: #ff9c85; }
+.c1 { color: var(--c1); } .c2 { color: var(--c2); }
 .gamenum { font-size: 2vmin; font-size: clamp(.75rem, 2vmin, 1.1rem); color: var(--muted); }
 #game.portrait .pts { font-size: 17vmin; font-size: clamp(3rem, 17vmin, 7rem); }
 #game.portrait .games { font-size: 11vmin; font-size: clamp(2rem, 11vmin, 4.5rem); }
@@ -301,3 +301,32 @@ body:not(.tv) .arena, body:not(.tv) .sponsor { display: none !important; }
     .tile .nm { font-size: clamp(.8rem, min(9cqw, 5cqh), 2.2rem); }
   }
 }
+
+/* ---------- Arenas e paleta ---------- */
+.arena-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; background: rgba(0,0,0,.2); border-radius: 14px; padding: 8px 10px; }
+.arena-bar > label, .arena-bar > .sp-label { font-size: .8rem; font-weight: 800; letter-spacing: .06em; white-space: nowrap; }
+.arena-bar .sp-label { flex: 1; text-align: right; color: var(--muted); font-weight: 600; overflow: hidden; text-overflow: ellipsis; letter-spacing: 0; }
+.arena-bar select { flex: 1; min-width: 0; padding: 9px 10px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; color: var(--ink); font-size: .95rem; }
+.arena-bar select option { color: #111; }
+.arena-bar .btn { margin: 0; width: auto; padding: 9px 14px; font-size: .9rem; }
+.arena-item { display: flex; align-items: stretch; gap: 6px; margin-bottom: 8px; }
+.arena-item .use { flex: 1; display: flex; align-items: center; gap: 10px; text-align: left; background: rgba(255,255,255,.08); border-radius: 12px; padding: 8px 10px; min-width: 0; }
+.arena-item .use.on { outline: 2px solid var(--sand); }
+.arena-item .thumb { width: 44px; height: 44px; flex: none; border-radius: 10px; background: rgba(255,255,255,.1) center/contain no-repeat; display: grid; place-items: center; }
+.arena-item .nm { font-weight: 800; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arena-item .sw4 { display: flex; gap: 3px; margin-top: 4px; }
+.arena-item .sw4 i { width: 16px; height: 16px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+.arena-item .ed { width: 46px; flex: none; border-radius: 12px; background: rgba(255,255,255,.12); font-size: 1.1rem; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.presets button { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 99px; background: rgba(255,255,255,.1); font-size: .78rem; font-weight: 700; }
+.presets button i { display: flex; } .presets button i b { width: 12px; height: 12px; display: block; }
+.presets button i b:first-child { border-radius: 99px 0 0 99px; } .presets button i b:last-child { border-radius: 0 99px 99px 0; }
+.color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.color-grid label { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: .8rem; font-weight: 700; background: rgba(0,0,0,.2); border-radius: 10px; padding: 6px 8px 6px 12px; }
+.color-grid input { width: 44px; height: 32px; border: 0; padding: 0; background: none; cursor: pointer; }
+.pal-preview { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; margin-top: 10px; border-radius: 14px; padding: 8px; background: linear-gradient(160deg, var(--bg-2), var(--bg)); }
+.pal-preview .pv { border-radius: 10px; padding: 14px 6px; text-align: center; font-weight: 900; font-size: .8rem; color: #fff; text-transform: uppercase; }
+.pal-preview .pv.t1 { background: linear-gradient(160deg, var(--t1), var(--t1-dark)); }
+.pal-preview .pv.t2 { background: linear-gradient(160deg, var(--t2), var(--t2-dark)); }
+.pal-preview .pv.mid { align-self: center; color: var(--sand); font-size: 1.1rem; padding: 0 8px; }
+#ae-warn { color: var(--sand); margin-top: 8px; display: block; }

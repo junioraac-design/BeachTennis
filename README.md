@@ -13,7 +13,9 @@ Placar de duplas feito só com HTML, CSS e JavaScript, sem dependências e sem s
 - **Troca de lado:** aviso 🔄 após cada game ímpar e, no tie-break, após 1, 5, 9, 13… pontos. Nomes, fotos e placar trocam de lado na tela, com animação, como nas transmissões de TV
 - **⚙ Corrigir:** desfazer ponto, desfazer game, editar games/pontos
 - **⟳ Girar tela:** automático, horizontal, horizontal invertido ou vertical
-- **🏟 Arena e patrocinador (em Configurações):** aparecem **só na transmissão (TV)**, no quadro central do placar (logo/nome da arena no alto e patrocinador embaixo, com cantos arredondados), e na tela final da TV. A imagem de compartilhamento do resultado também leva a arena e o patrocinador. O placar do celular fica limpo
+- **🏟 Arenas (até 10):** cadastre cada arena com **nome, logo e paleta de cores** (em *Configurações → Arenas → Gerenciar* ou pelo seletor **Arena** da tela inicial). Ao escolher a arena, o app inteiro, no celular e na TV, passa a usar as cores dela. A paleta tem 4 cores (fundo, destaque, Dupla 1, Dupla 2): use uma **paleta pronta**, o botão **✨ Usar as cores do logo** (o app sugere a paleta a partir do logo) ou ajuste à mão. O app confere a legibilidade e avisa se as cores ficarem parecidas ou ilegíveis
+- **🤝 Patrocinador da partida:** sem cadastro; escolha na tela inicial (imagem e/ou texto). Fica lembrado até você trocar ou limpar
+- **Onde aparecem:** logo/nome da arena e patrocinador aparecem **só na transmissão (TV)**, no quadro central (cantos arredondados), e na tela final da TV. A imagem de compartilhamento do resultado leva a arena, as cores e o patrocinador. O placar do celular fica limpo (só muda de cor)
 - **Configurações:** som, narração do placar em português, segurar para marcar ponto, aviso de troca de lado em tela cheia ou faixa, tamanho do set, salvar ao terminar
 - Partida salva automaticamente no navegador (retoma após fechar a página). Atalhos: `1`/`←`, `2`/`→`, `U` desfazer, `Espaço` pausar
 
@@ -92,7 +94,9 @@ js/settings.js       configurações, som, voz, segurar para marcar
 js/share.js          imagem de compartilhamento
 js/sync.js           TV ao vivo (com modo seguro)
 config.js            endereço do seu banco (opcional, para link curto)
-js/brand.js          arena e patrocinador
+js/palette.js        paletas de cores e legibilidade (puro)
+js/brand.js          tema, arena e patrocinador
+js/arenas.js         cadastro de arenas e editor de paleta
 tests/               testes automáticos
 ```
 Rodar os testes (Node 18+): `npm test`

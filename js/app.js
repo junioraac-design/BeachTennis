@@ -192,7 +192,7 @@ function render() {
 function buildRecord() {
   return { id: savedId || undefined, date: T.startedAt, names: S.names, photos: P, winner: S.winner,
     games: S.games.slice(), target: S.target, log: S.log, tbResult: S.tbResult, totalPoints: S.totalPoints,
-    duration: elapsedMs(), tournament: tref || undefined };
+    duration: elapsedMs(), tournament: tref || undefined, arena: (typeof curBrand !== "undefined" && curBrand.name) || undefined };
 }
 const joinRec = (rec, t) => `${rec.names[t][0]} e ${rec.names[t][1]}`;
 

@@ -30,6 +30,17 @@
       <button class="btn btn-green" id="btn-resume" type="button">Continuar partida</button>
     </div>
 
+    <div class="arena-bar">
+      <label for="arena-select">🏟 Arena</label>
+      <select id="arena-select"></select>
+      <button class="btn btn-secondary" id="arena-manage" type="button" aria-label="Gerenciar arenas">⚙</button>
+    </div>
+    <div class="arena-bar">
+      <label>🤝 Patrocinador</label>
+      <span id="sponsor-label" class="sp-label">nenhum</span>
+      <button class="btn btn-secondary" id="sponsor-open" type="button">Escolher</button>
+    </div>
+
     <div class="team-block t1">
       <h2>Dupla 1</h2>
       <div class="athletes" id="ath-0"></div>
@@ -230,6 +241,49 @@
   <div class="pick-row" id="pick-row"></div>
 </dialog>
 
+<!-- Arenas: lista -->
+<dialog id="dlg-arenas">
+  <h3>🏟 Arenas</h3>
+  <p>Toque numa arena para usar. As cores do app mudam para as dela.</p>
+  <div id="arena-list"></div>
+  <button class="btn btn-primary" id="arena-new" type="button">＋ Nova arena</button>
+  <button class="btn btn-secondary" id="arenas-close" type="button">Fechar</button>
+</dialog>
+
+<!-- Arena: editor -->
+<dialog id="dlg-arena">
+  <h3 id="ae-title">Nova arena</h3>
+  <input type="text" id="ae-name" class="txt" maxlength="40" placeholder="Nome da arena" />
+  <div class="img-pick"><img id="ae-logo-prev" alt="" hidden><button class="btn btn-secondary" id="ae-logo-btn" type="button">🖼 Logo (fotos)</button><button class="btn btn-secondary" id="ae-logo-file" type="button">📁 Arquivos / Drive</button><button class="btn btn-secondary" id="ae-logo-del" type="button" hidden>Remover</button></div>
+  <div class="field-label">Cores da arena</div>
+  <div id="ae-presets" class="presets"></div>
+  <button class="btn btn-secondary" id="ae-fromlogo" type="button" style="margin-top:8px">✨ Usar as cores do logo</button>
+  <div class="color-grid">
+    <label>Fundo<input type="color" id="ae-bg"></label>
+    <label>Destaque<input type="color" id="ae-accent"></label>
+    <label>Dupla 1<input type="color" id="ae-t1"></label>
+    <label>Dupla 2<input type="color" id="ae-t2"></label>
+  </div>
+  <div class="pal-preview"><div class="pv t1">Dupla 1</div><div class="pv mid">30 x 15</div><div class="pv t2">Dupla 2</div></div>
+  <small class="tvhelp" id="ae-warn"></small>
+  <button class="btn btn-primary" id="ae-save" type="button">Salvar arena</button>
+  <button class="btn btn-danger" id="ae-delete" type="button" hidden>Excluir arena</button>
+  <button class="btn btn-secondary" id="ae-cancel" type="button">Cancelar</button>
+</dialog>
+
+<!-- Patrocinador da partida (sem cadastro) -->
+<dialog id="dlg-sponsor">
+  <h3>🤝 Patrocinador desta partida</h3>
+  <p>Escolha na hora. Aparece só na transmissão (TV). Fica lembrado até você trocar ou limpar.</p>
+  <input type="text" id="s-sponsor-txt" class="txt" maxlength="60" placeholder="Texto do patrocinador (opcional)" />
+  <div class="img-pick"><img id="s-sponsor-prev" alt="" hidden><button class="btn btn-secondary" id="s-sponsor-btn" type="button">🖼 Fotos</button><button class="btn btn-secondary" id="s-sponsor-file" type="button">📁 Arquivos / Drive</button></div>
+  <button class="btn btn-secondary" id="s-sponsor-del" type="button" hidden>Limpar patrocinador</button>
+  <button class="btn btn-primary" id="sponsor-close" type="button">Pronto</button>
+</dialog>
+<!-- sem "accept" nos botões "Arquivos": o celular abre o seletor de arquivos (Drive, Downloads, pastas) -->
+<input type="file" id="file-logo" accept="image/*" hidden /><input type="file" id="file-sponsor" accept="image/*" hidden />
+<input type="file" id="file-logo-f" hidden /><input type="file" id="file-sponsor-f" hidden />
+
 <!-- Configurações -->
 <dialog id="dlg-settings">
   <h3>⚙ Configurações</h3>
@@ -241,15 +295,7 @@
     <div class="seg"><input type="radio" name="sidealert" id="sa0" value="full"><label for="sa0">Tela cheia</label><input type="radio" name="sidealert" id="sa1" value="banner"><label for="sa1">Faixa discreta</label></div></div>
   <div class="opt col"><div><b>Tamanho do set</b><small>Vale para as próximas partidas avulsas</small></div>
     <div class="seg"><input type="radio" name="setsize" id="ss0" value="6"><label for="ss0">6 games (oficial)</label><input type="radio" name="setsize" id="ss1" value="4"><label for="ss1">4 games (curto)</label></div></div>
-  <div class="opt col"><div><b>🏟 Arena</b><small>Nome e logo aparecem no placar, na tela final, na imagem de compartilhamento e na TV</small></div>
-    <input type="text" id="s-arena" class="txt" maxlength="40" placeholder="Nome da arena" />
-    <div class="img-pick"><img id="s-logo-prev" alt="" hidden><button class="btn btn-secondary" id="s-logo-btn" type="button">🖼 Fotos</button><button class="btn btn-secondary" id="s-logo-file" type="button">📁 Arquivos / Drive</button><button class="btn btn-secondary" id="s-logo-del" type="button" hidden>Remover</button></div></div>
-  <div class="opt col"><div><b>🤝 Patrocinador</b><small>Aparece no centro do placar, na tela final e na imagem de compartilhamento</small></div>
-    <input type="text" id="s-sponsor-txt" class="txt" maxlength="60" placeholder="Texto do patrocinador (opcional)" />
-    <div class="img-pick"><img id="s-sponsor-prev" alt="" hidden><button class="btn btn-secondary" id="s-sponsor-btn" type="button">🖼 Fotos</button><button class="btn btn-secondary" id="s-sponsor-file" type="button">📁 Arquivos / Drive</button><button class="btn btn-secondary" id="s-sponsor-del" type="button" hidden>Remover</button></div></div>
-  <!-- sem "accept": o celular abre o seletor de arquivos (Drive, Downloads, pastas) em vez de só a galeria -->
-  <input type="file" id="file-logo" accept="image/*" hidden /><input type="file" id="file-sponsor" accept="image/*" hidden />
-  <input type="file" id="file-logo-f" hidden /><input type="file" id="file-sponsor-f" hidden />
+  <div class="opt"><div><b>🏟 Arenas</b><small>Cadastre até 10 arenas, cada uma com logo e cores</small></div><button class="btn btn-secondary" id="set-arenas" type="button" style="width:auto;margin:0;padding:10px 14px">Gerenciar</button></div>
   <div class="opt"><div><b>📺 Transmitir para a TV</b><small>A TV mostra o placar ao vivo; você marca os pontos no celular</small></div><label class="sw"><input type="checkbox" id="s-tvon"><span></span></label></div>
   <div id="tv-box" hidden>
     <small class="tvhelp">Na <b>mesma tela/aparelho</b> funciona direto (abra o link em outra aba ou janela). Para outro aparelho, cole abaixo o endereço do seu banco <b>Firebase Realtime Database</b> (veja o README).</small>
@@ -364,8 +410,10 @@
 <script src="js/app.js"></script>
 <script src="js/share.js"></script>
 <script src="js/history.js"></script>
+<script src="js/palette.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/brand.js"></script>
+<script src="js/arenas.js"></script>
 <script src="js/tourneys.js"></script>
 <script src="config.js"></script>
 <script src="js/sync.js"></script>

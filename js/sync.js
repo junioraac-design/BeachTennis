@@ -21,9 +21,21 @@ function normDb(v) {
   if (!/^https?:\/\//i.test(v)) v = "https://" + v;
   try { return new URL(v).origin; } catch (_) { return ""; }
 }
+const defaultDb = () => normDb(window.BT_DEFAULT_DB || "");
+/* Forma curta do endereço no link: https://meu-proj-default-rtdb.firebaseio.com  →  p:meu-proj */
+function compactDb(db) {
+  const m = db.match(/^https:\/\/([a-z0-9-]+)-default-rtdb\.firebaseio\.com$/i);
+  return m ? "p:" + m[1] : db;
+}
+function expandDb(v) {
+  v = (v || "").trim();
+  if (/^p:[a-z0-9-]+$/i.test(v)) return `https://${v.slice(2)}-default-rtdb.firebaseio.com`;
+  return normDb(v);
+}
+const normCode = (v) => (v || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
 function tvConfig() {
   const c = BTStore.getSettings();
-  return { on: c.tvOn, db: normDb(c.tvDb), code: c.tvCode, apiKey: (c.tvApiKey || "").trim() };
+  return { on: c.tvOn, db: normDb(c.tvDb) || defaultDb(), code: c.tvCode, apiKey: (c.tvApiKey || "").trim() };
 }
 
 /* Modo seguro: login anônimo do Firebase. O aparelho vira "dono" da sala (campo owner = uid);
@@ -106,7 +118,16 @@ function tvEnsureCode() {
 function tvLink(local) {
   const { db } = tvConfig(), code = tvEnsureCode();
   const base = location.origin + location.pathname;
-  return db && !local ? `${base}?tv=${code}&db=${encodeURIComponent(db)}` : `${base}?tv=local`;
+  if (!db || local) return `${base}?tv=local`;
+  // com o banco definido no config.js o link leva só o código; senão leva o endereço, em forma curta
+  const dbp = db === defaultDb() ? "" : "&db=" + encodeURIComponent(compactDb(db)).replace(/%3A/gi, ":");
+  return `${base}?tv=${code}${dbp}`;
+}
+function showTvLink() {
+  const el = $("tv-link");
+  if (!el) return;
+  const link = tvLink(!tvConfig().db);
+  el.textContent = `Link da TV (${link.replace(/^https?:\/\//, "").length} caracteres): ${link.replace(/^https?:\/\//, "")}`;
 }
 
 function tvPayload() {
@@ -218,16 +239,38 @@ function tvApply(state, photos, brand) {
   }
 }
 
+const KEY_TVCODE = "beachtennis:tvcode";
 function startViewer(code, db) {
   document.body.classList.add("tv");
   document.title = "Beach Tennis · TV";
-  $("tv-code").textContent = code === "local" ? "mesma tela" : code;
   showScreen("tvwait");
+  // sem código no link: usa o último código desta TV; se não houver, pede para digitar
+  if (!code) { try { code = localStorage.getItem(KEY_TVCODE) || ""; } catch (_) {} }
+  if (!code) {
+    $("tv-code").textContent = "—";
+    $("tv-status").textContent = db ? "" : "Falta o endereço do banco no link (veja o README).";
+    if (db) {
+      $("tv-form").hidden = false;
+      $("tv-form").onsubmit = (e) => {
+        e.preventDefault();
+        const c = normCode($("tv-code-in").value);
+        if (c.length < 4) { $("tv-status").textContent = "O código tem de 4 a 12 letras ou números."; return; }
+        try { localStorage.setItem(KEY_TVCODE, c); } catch (_) {}
+        location.replace(`${location.pathname}?tv=${c}` + (new URLSearchParams(location.search).get("db") ? `&db=${new URLSearchParams(location.search).get("db")}` : ""));
+      };
+      $("tv-code-in").focus();
+    }
+    return;
+  }
+  code = code === "local" ? code : normCode(code);
+  if (code !== "local") { try { localStorage.setItem(KEY_TVCODE, code); } catch (_) {} }
+  $("tv-code").textContent = code === "local" ? "mesma tela" : code;
   requestWake();
   setInterval(() => { if (S && !S.finished) renderTimer(); }, 500);
   // mesma tela/aparelho: chega pelo BroadcastChannel
   if (tvChannel) tvChannel.onmessage = (e) => tvApply(e.data.state, e.data.photos, e.data.brand);
-  if (code === "local" || !db) return;
+  if (code === "local") return;
+  if (!db) { $("tv-status").textContent = "❌ Falta o endereço do banco no link. Gere o link de novo no celular (Copiar link)."; return; }
   const url = `${db}/rooms/${code}`;
   let photoKey = null, photos = null, brandVer = null;
   const status = (t) => { const el = $("tv-status"); if (el) el.textContent = t; };
@@ -264,19 +307,30 @@ function startViewer(code, db) {
 function refreshTvSettings() {
   const c = BTStore.getSettings();
   $("s-tvon").checked = c.tvOn;
-  $("s-tvdb").value = c.tvDb || "";
+  $("s-tvdb").value = c.tvDb || (defaultDb() ? "" : "");
+  $("s-tvdb").placeholder = defaultDb() ? `(usando o banco do config.js)` : "https://seu-projeto-default-rtdb.firebaseio.com";
+  $("s-tvcode").value = c.tvCode || "";
   $("s-tvkey").value = c.tvApiKey || "";
   $("tv-box").hidden = !c.tvOn;
   $("tv-status-host").textContent = tvStatus;
-  if (c.tvOn) tvEnsureCode();
+  if (c.tvOn) { tvEnsureCode(); $("s-tvcode").value = BTStore.getSettings().tvCode; }
+  showTvLink();
 }
 $("s-tvon").addEventListener("change", (e) => { BTStore.setSettings({ tvOn: e.target.checked }); refreshTvSettings(); if (e.target.checked) syncPush(); });
 $("s-tvdb").addEventListener("change", (e) => {
   const raw = e.target.value.trim(), fixed = normDb(raw);
   if (raw && !fixed) { setTvStatus("❌ Endereço inválido. Ele deve ser parecido com https://seu-projeto-default-rtdb.firebaseio.com"); return; }
   e.target.value = fixed;                      // mostra o endereço já corrigido
-  BTStore.setSettings({ tvDb: fixed }); tvPhotoKey = null; syncPush();
+  BTStore.setSettings({ tvDb: fixed }); tvPhotoKey = null; syncPush(); showTvLink();
   if (fixed) tvTest();
+});
+$("s-tvcode").addEventListener("change", (e) => {
+  const c = normCode(e.target.value);
+  if (c.length < 4) { toast("O código precisa de 4 a 12 letras ou números."); e.target.value = BTStore.getSettings().tvCode; return; }
+  e.target.value = c;
+  BTStore.setSettings({ tvCode: c });
+  tvPhotoKey = null; tvBrandVer = null;
+  syncPush(); showTvLink();
 });
 $("s-tvkey").addEventListener("change", (e) => {
   BTStore.setSettings({ tvApiKey: e.target.value.trim() });
@@ -301,5 +355,5 @@ $("btn-set").addEventListener("click", refreshTvSettings);
 
 (function initTv() {
   const q = new URLSearchParams(location.search);
-  if (q.has("tv")) startViewer(q.get("tv") || "local", q.get("db") || "");
+  if (q.has("tv")) startViewer(q.get("tv"), expandDb(q.get("db")) || defaultDb());
 })();

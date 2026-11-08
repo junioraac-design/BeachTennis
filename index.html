@@ -57,7 +57,8 @@
 
 <!-- ============ AGUARDANDO (TV) ============ -->
 <main id="tvwait" class="screen">
-  <div class="tvwait-box"><div class="ball-big">🎾</div><h1>Aguardando partida…</h1><p>Código: <b id="tv-code"></b></p><p id="tv-status" class="tvstat"></p></div>
+  <div class="tvwait-box"><div class="ball-big">🎾</div><h1>Aguardando partida…</h1><p>Código: <b id="tv-code"></b></p><p id="tv-status" class="tvstat"></p>
+    <form id="tv-form" hidden autocomplete="off"><p>Digite o código da sala:</p><input id="tv-code-in" type="text" maxlength="12" autocapitalize="characters" /><button type="submit">Entrar</button></form></div>
 </main>
 
 <!-- ============ PARTIDA ============ -->
@@ -252,6 +253,8 @@
   <div class="opt"><div><b>📺 Transmitir para a TV</b><small>A TV mostra o placar ao vivo; você marca os pontos no celular</small></div><label class="sw"><input type="checkbox" id="s-tvon"><span></span></label></div>
   <div id="tv-box" hidden>
     <small class="tvhelp">Na <b>mesma tela/aparelho</b> funciona direto (abra o link em outra aba ou janela). Para outro aparelho, cole abaixo o endereço do seu banco <b>Firebase Realtime Database</b> (veja o README).</small>
+    <small class="tvhelp"><b>Código da sala</b> (você escolhe; 4 a 12 letras ou números). É o que a TV precisa para abrir o placar:</small>
+    <input type="text" id="s-tvcode" class="txt" maxlength="12" placeholder="Ex.: ARENASOL" autocapitalize="characters" autocomplete="off" />
     <input type="url" id="s-tvdb" class="txt" placeholder="https://seu-projeto-default-rtdb.firebaseio.com" />
     <small class="tvhelp"><b>Modo seguro (opcional):</b> cole a <b>Chave de API da Web</b> do projeto para que só este aparelho consiga alterar o placar; os demais só veem (veja o README).</small>
     <input type="text" id="s-tvkey" class="txt" placeholder="Chave de API da Web (AIza…)" autocomplete="off" />
@@ -259,6 +262,7 @@
     <button class="btn btn-secondary" id="tv-test" type="button" style="margin-top:8px">🔍 Testar conexão</button>
     <div class="backup-row" style="margin-top:8px"><button class="btn btn-secondary" id="tv-new" type="button">♻ Gerar novo link</button><button class="btn btn-secondary" id="tv-rules" type="button">📋 Copiar regras seguras</button></div>
     <small class="tvhelp" id="tv-status-host"></small>
+    <small class="tvhelp" id="tv-link" style="word-break:break-all;user-select:text;-webkit-user-select:text"></small>
   </div>
   <small class="tvhelp" style="text-align:center;margin-top:10px">Versão <b id="app-ver"></b></small>
   <button class="btn btn-primary" id="set-close" type="button">Pronto</button>
@@ -363,6 +367,7 @@
 <script src="js/settings.js"></script>
 <script src="js/brand.js"></script>
 <script src="js/tourneys.js"></script>
+<script src="config.js"></script>
 <script src="js/sync.js"></script>
 </body>
 </html>

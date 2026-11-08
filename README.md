@@ -52,6 +52,12 @@ Você marca os pontos no celular e a TV só exibe o placar.
      - A sala passa a pertencer ao aparelho que a criou. Se outro aparelho (ou o mesmo, após limpar os dados do navegador) precisar transmitir, use **Gerar novo link**.
    - Alternativa sem configurar nada: transmitir a tela do celular para a TV (Chromecast, AirPlay, Miracast).
 
+### Digitar o link na TV (link curto)
+- **Código da sala:** em *Configurações → Transmitir para a TV* você escolhe o código (4 a 12 letras ou números, ex.: `ARENASOL`).
+- **A TV lembra o último código.** Na primeira vez, digite o link completo e deixe nos favoritos do navegador da TV. Nas próximas, basta abrir o favorito, ou o endereço terminado em `?tv`, sem digitar o código de novo. Se abrir o endereço terminado em `?tv` e a TV não souber o código, ela mostra um campo para digitar só o código.
+- **Link menor:** o endereço do banco vai no link em forma curta (`db=p:seu-projeto`). Para o link levar **só o código** (ex.: `usuario.github.io/BeachTennis/?tv=ARENASOL`), preencha `window.BT_DEFAULT_DB` no arquivo `config.js` com o endereço do seu banco e publique. Faça isso **só com o modo seguro ligado**, porque o arquivo fica público.
+- **Colar em vez de digitar:** em Android TV e Google TV, o app *Google TV* (controle remoto no celular) permite digitar e colar texto pelo teclado do celular. Smart TVs Samsung e LG têm recurso parecido nos apps SmartThings e ThinQ.
+
 ### Se a TV não funcionar
 1. Em **⚙ Configurações → Transmitir para a TV**, toque em **🔍 Testar conexão**. O app diz o que está errado:
    - **Permissão negada (401/403):** as *Regras* do Firebase não foram publicadas (veja o passo 2 acima). No modo seguro, publique as regras seguras e, se a sala for de outro aparelho, use **Gerar novo link**.
@@ -82,6 +88,7 @@ js/tourneys.js       telas dos torneios
 js/settings.js       configurações, som, voz, segurar para marcar
 js/share.js          imagem de compartilhamento
 js/sync.js           TV ao vivo (com modo seguro)
+config.js            endereço do seu banco (opcional, para link curto)
 js/brand.js          arena e patrocinador
 tests/               testes automáticos
 ```

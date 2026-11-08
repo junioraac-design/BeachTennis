@@ -256,6 +256,9 @@ textarea.txt { text-transform: uppercase; font-family: inherit; }
 body.tv .controls, body.tv .point-btn, body.tv #btn-rot, body.tv #btn-set { display: none !important; }
 body.tv .team-card { justify-content: center; }
 body.tv .side-alert .tap { display: none; }
+#tv-form { margin-top: 22px; } #tv-form p { color: var(--muted); }
+#tv-form input { font-size: clamp(1.4rem, 5vmin, 3rem); text-align: center; text-transform: uppercase; letter-spacing: .2em; width: min(80vw, 520px); padding: 12px; border-radius: 14px; border: 2px solid var(--sand); background: rgba(255,255,255,.08); color: var(--ink); outline: none; }
+#tv-form button { display: block; margin: 16px auto 0; font-size: clamp(1.1rem, 3.4vmin, 2rem); padding: 12px 36px; border-radius: 14px; background: var(--sand); color: #2a1d00; font-weight: 800; }
 .tvstat { font-size: clamp(.85rem, 2.4vmin, 1.2rem); max-width: 80vw; margin: 14px auto 0; }
 #tv-status-host { margin-top: 8px; font-weight: 700; }
 

@@ -1,5 +1,5 @@
 // Cache simples para funcionar offline. Aumente a versão ao publicar mudanças.
-const CACHE = "beachtennis-v11";
+const CACHE = "beachtennis-v12";
 const FILES = ["./", "./index.html", "./css/style.css", "./js/engine.js", "./js/tourney-logic.js", "./js/store.js", "./js/stats.js", "./js/app.js", "./js/share.js", "./js/history.js", "./js/settings.js", "./js/tourneys.js", "./js/sync.js", "./manifest.json", "./icon-192.png", "./icon-512.png", "./icon-maskable.png"];
 
 self.addEventListener("install", (e) => {
@@ -12,7 +12,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   e.respondWith(
-    fetch(e.request).then((r) => {
+    fetch(e.request, { cache: "no-cache" }).then((r) => {
       const copy = r.clone();
       caches.open(CACHE).then((c) => c.put(e.request, copy));
       return r;
